@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+	canvas {
+		position: fixed;
+		top: 0;
+		left: 0;
+	}
+</style>
+</head>
+
+<body>
+
+<script src="js/r69/three.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/KeyboardState.js"></script>
+
+<script>
+////////////////////////////////////////////////////
+// global var's
+
+
+//====JSONLoader2 from caa
+THREE.JSONLoader2 = function() {
+  var callback = function(){};
+  this.loadAjaxJSON = function(){
+  	  callback = arguments[2];
+      THREE.JSONLoader.prototype.loadAjaxJSON.apply(this, arguments);
+  };
+  this.parse = function ( json, texturePath ) {
+        if(json.geometries && json.geometries.length){
+        	var geometrys = [];
+        	var materials = [];
+
+        	//geometry
+			for(var i=0; i<json.geometries.length; i++){
+				if(json.geometries[i].data){
+					var json2= json.geometries[i].data;
+					var result = THREE.JSONLoader.prototype.parse( json2, texturePath);
+					geometrys.push(result.geometry);
+			    }
+			}
+            //materials
+            for(var i=0; i<json.materials.length; i++){
+            	var matOpt = json.materials[i];
+            	if(matOpt.bumpMap){
+            	var path = texturePath + matOpt.bumpMap;
+                var bmap = THREE.ImageUtils.loadTexture(path);
+              
+                bmap.anisotropy = 4;
+                bmap.repeat.set( 1, 1 );
+				//bmap.offset.set( 1/4, 1/4);
+				bmap.wrapS = bmap.wrapT = THREE.RepeatWrapping;
+				bmap.format = THREE.RGBFormat;
+                matOpt.bumpMap = bmap;
+                var mm = new THREE.MeshPhongMaterial( matOpt );
+                mm.bumpScale = 0.06;
+                materials.push(mm);
+               }
+            }
+
+            for(var i=0; i<geometrys.length; i++){
+             var j = (i+2) % materials.length;
+              callback(geometrys[i], materials[j]);
+            }
+
+            return {geometry: null, materials: null};
+	    }else{
+	    	return THREE.JSONLoader.prototype.parse.apply(this, arguments);
+	    }
+  };
+  THREE.JSONLoader.call(this);
+}
+THREE.JSONLoader2.prototype = Object.create(THREE.JSONLoader.prototype);
+//====JSONLoader2 from caa
+
+
+
+
+var clock = new THREE.Clock();
+var scene, renderer, camera;
+var cube;
+var controls, keyboard = new KeyboardState();
+var android;
+
+var angle = 0;
+var turn = 1;
+var modelMesh = null;
+init();
+animate();
+
+function init()
+{
+	var width = window.innerWidth;
+	var height = window.innerHeight;
+
+	renderer = new THREE.WebGLRenderer({antialias: true});
+	renderer.setSize (width, height);
+	document.body.appendChild (renderer.domElement);
+
+	scene = new THREE.Scene();
+
+	camera = new THREE.PerspectiveCamera (45, width/height, 0.1, 10000000);
+	camera.position.y = 160;
+	camera.position.z = 400;
+	camera.lookAt (new THREE.Vector3(0,0,0));
+
+	// add control here (after the camera is defined)
+	controls = new THREE.OrbitControls (camera, render.domElement);
+
+	var skyboxGeometry = new THREE.BoxGeometry (10000,10000,10000);
+	var skyboxMaterial = new THREE.MeshBasicMaterial ({color: 0x222222, side:THREE.BackSide});
+	var skybox = new THREE.Mesh (skyboxGeometry, skyboxMaterial);
+	scene.add (skybox);
+
+	var gridXZ = new THREE.GridHelper(100, 10);
+	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
+	scene.add(gridXZ);
+
+	var pointLight = new THREE.PointLight (0xffffff);
+	pointLight.position.set (0,300,200);
+	scene.add (pointLight);
+
+	//var jsonLoader = new THREE.JSONLoader2();
+    //jsonLoader.load ("models/toy-train.json", addModelToScene);
+	//jsonLoader.load ("models/stanford-dragon.json", addModelToScene);
+	//jsonLoader.load ("models/lee-perry-smith-head-scan.json", addModelToScene);
+	var jsonLoader = new THREE.JSONLoader();
+	jsonLoader.load ("models/android.js", addModelToScene);
+	
+	var ambientLight = new THREE.AmbientLight (0xcccccc);
+	scene.add(ambientLight);
+
+	var spotLight = new THREE.SpotLight(0xffffff);
+    spotLight.position.set(-1000, 1000, 1000);
+    scene.add(spotLight);
+
+    android = new THREE.Mesh ();
+    android.scale.set (15,15,15);
+    scene.add (android);
+}
+
+
+function addModelToScene ( geometry, materials )
+{
+	if(geometry===null){
+		return;
+	}
+	var componentMesh = new THREE.Mesh (geometry, materials);
+	android.add (componentMesh);
+}
+
+function animate()
+{
+	var dt = clock.getDelta();
+
+	var x = 50*Math.cos(angle);
+	var z = 50*Math.sin(angle);
+
+	// if (android != undefined && turn) { 
+	// 	android.position.set (x,0,z);
+	// 	android.rotation.y -= 2*dt;
+	// 	angle -= dt;
+	// }
+	
+	requestAnimationFrame ( animate );  // timer callback
+	update();
+	render();  // display callback
+}
+
+function update()
+{
+	controls.update();
+	keyboard.update();         // this is required; this is a different keyboard callback
+	if ( keyboard.down("Z"))  // must use upper case!!
+		turn ^= 1;               
+}
+
+function render()
+{
+	renderer.render (scene, camera);
+}
+
+
+</script>
+</body>
+
+</html>

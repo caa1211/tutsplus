@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+	body {
+		background-color: #fff;
+		color: #111;
+		margin: 0px;
+		overflow: hidden;
+		font-family: Monospace;
+		font-size: 20px;
+		position: absolute;
+	}
+	#info {
+		position: absolute;
+		top: 0px; width: 100%;
+		
+		padding: 5px;
+		text-align: center;
+		color: #ffff00
+	}
+	strong {color:red}
+</style>
+
+</head>
+
+<body>
+<div id="container"></div>
+<div id="info">
+    webgl tutorial 12 <br/>
+	Quaternion Slerp<br/>
+</div>
+
+
+<script src="js/three.min.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/KeyboardState.js"></script>
+<script src="js/loaders/MTLLoader.js"></script>
+<script src="js/loaders/OBJMTLLoader.js"></script>
+
+<script>
+////////////////////////////////////////////////////
+// global var's
+var clock = new THREE.Clock();
+var scene, renderer, camera;
+var controls;
+
+var toycar;
+
+init();
+animate();
+
+// keyframes
+var quat1, quat2;
+var pos1, pos2;
+var qm,pos;
+
+function init()
+{
+	var width = window.innerWidth;
+	var height = window.innerHeight;
+
+	renderer = new THREE.WebGLRenderer({antialias: true});
+	renderer.setSize (width, height);
+	document.body.appendChild (renderer.domElement);
+
+	scene = new THREE.Scene();
+
+	camera = new THREE.PerspectiveCamera (45, width/height, 0.1, 10000000);
+	camera.position.y = 160;
+	camera.position.z = 400;
+	camera.lookAt (new THREE.Vector3(0,0,0));
+/*
+	var jsonLoader = new THREE.JSONLoader();
+	jsonLoader.load ("models/teapot2.js", 
+		function (geometry) {
+			var material = new THREE.MeshFaceMaterial ({color: 0x999999});
+			toycar = new THREE.Mesh (geometry, material);
+			scene.add (toycar);
+		} );
+*/
+	
+	var loader = new THREE.OBJMTLLoader();
+	loader.load ('models/toycar.obj', 'models/toycar.mtl', 
+	   function (object) {
+		 toycar = object;
+		 scene.add( toycar );
+	   } );
+
+	// add control here (after the camera is defined)
+	controls = new THREE.OrbitControls (camera, render.domElement);
+
+	var skyboxGeometry = new THREE.BoxGeometry (10000,10000,10000);
+	var skyboxMaterial = new THREE.MeshBasicMaterial ({color: 0x222222, side:THREE.BackSide});
+	var skybox = new THREE.Mesh (skyboxGeometry, skyboxMaterial);
+	scene.add (skybox);
+
+	var gridXZ = new THREE.GridHelper(100, 10);
+	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
+	scene.add(gridXZ);
+
+	var pointLight = new THREE.PointLight (0xffffff);
+	pointLight.position.set (0,300,200);
+	scene.add (pointLight);
+
+	var ambientLight = new THREE.AmbientLight (0x111111);
+	scene.add(ambientLight);
+	window.addEventListener ('resize', onWindowResize, false);	
+
+	// setting keyframes
+	quat1 = new THREE.Quaternion();
+	quat1.setFromAxisAngle (new THREE.Vector3(0,-1,0), Math.PI/2);
+	quat2 = new THREE.Quaternion();
+	quat2.setFromAxisAngle (new THREE.Vector3(0,1,0), Math.PI/2);
+	pos1 = new THREE.Vector3 (0,30,0);
+	pos2 = new THREE.Vector3 (60,0,0);
+	pos = new THREE.Vector3();
+}
+
+function onWindowResize()
+{
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+	renderer.setSize (window.innerWidth, window.innerHeight);
+}
+
+function animate()
+{
+	var dt = clock.getDelta();
+
+	if (toycar != undefined) {
+		toycar.scale.set (0.5,0.5,0.5);
+		//	toycar.useQuaternion = true;  // defunct
+		toycar.position.copy (pos);
+		toycar.quaternion.copy (qm);
+	}
+	
+	requestAnimationFrame ( animate );  // timer callback
+	update();
+	render();  // display callback
+}
+
+var tt = 0.0;
+var sign = 1;
+
+function update()
+{
+	controls.update();
+	
+	tt += 0.01*sign;
+	if (tt > 1 || tt < 0)
+		sign *= -1;
+	qm = new THREE.Quaternion();
+	THREE.Quaternion.slerp(quat1, quat2, qm, tt);
+
+	// what a painful way to do: pos = (1-tt)*pos1 + tt*pos2
+	var tmp1 = new THREE.Vector3();
+	tmp1.copy (pos1);
+	tmp1.multiplyScalar (1-tt);
+	var tmp2 = new THREE.Vector3();
+	tmp2.copy (pos2);
+	tmp2.multiplyScalar (tt);
+	pos.addVectors (tmp1, tmp2);
+}
+
+function render()
+{
+	renderer.render (scene, camera);
+}
+
+
+</script>
+</body>
+
+</html>
