@@ -69,7 +69,7 @@ function init()
 	camera.lookAt (new THREE.Vector3(0,0,0));
 
 	// add control here (after the camera is defined)
-	controls = new THREE.OrbitControls (camera, render.domElement);
+	controls = new THREE.OrbitControls (camera, renderer.domElement);
 
 	theta1 = theta2 = 0;
 	var boxGeometry = new THREE.BoxGeometry (60, 10,10);
@@ -101,7 +101,7 @@ function animate()
 	requestAnimationFrame ( animate );  // timer callback
 	update();
 	render();  // display callback
-}
+} 
 
 function update()
 {
