@@ -54,10 +54,10 @@
 		  camera.lookAt(new THREE.Vector3(0,0,0)); 
 
 		renderer = new THREE.WebGLRenderer({antialias:true});
-      renderer.setSize(width, height);
+        renderer.setSize(width, height);
+		controls = new THREE.OrbitControls (camera, renderer.domElement);
   
-        // urls of the images,
-        // one per half axis
+        // urls of the images, one per half axis
         var urls = [
               'images/redsky_cubemap/redsky_posx.png',
               'images/redsky_cubemap/redsky_negx.png',
@@ -71,9 +71,7 @@
         var cubemap = THREE.ImageUtils.loadTextureCube(urls);
 
         // set the format, likely RGB
-        // unless you've gone crazy
         cubemap.format = THREE.RGBFormat;
-		controls = new THREE.OrbitControls (camera, renderer.domElement);
 	
         // following code from https://github.com/mrdoob/three.js/blob/master/examples/webgl_materials_cubemap.html
         var shader = THREE.ShaderLib[ "cube" ];
@@ -91,14 +89,8 @@
 
         var skybox = new THREE.Mesh( new THREE.BoxGeometry( 5000, 5000, 5000 ), material );
 
-        var ambient = new THREE.AmbientLight( 0xffffff );
-        scene.add(ambient);
-
-        var pointLight = new THREE.PointLight( 0xffffff, 2 );
-        scene.add( pointLight );
-
         var reflectionMaterial = new THREE.MeshBasicMaterial({
-          color: 0xcccccc,
+          color: 0xffffff, //0xcccccc,
           envMap: cubemap
         });
 
@@ -107,9 +99,14 @@
           reflectionMaterial
         );
 
-        scene.add(torus);
-//        scene.add(camera);
         scene.add(skybox);
+        scene.add(torus);
+
+        var ambient = new THREE.AmbientLight( 0x333333 ); //0xffffff );
+        scene.add(ambient);
+
+        var pointLight = new THREE.PointLight( 0xffffff, 2 );
+        scene.add( pointLight );
 
         document.body.appendChild(renderer.domElement);
 		
