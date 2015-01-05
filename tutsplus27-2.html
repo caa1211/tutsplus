@@ -76,7 +76,8 @@ function init() {
 	// Add the COLLADA
 	var loader = new THREE.ColladaLoader();
 	loader.options.convertUpAxis = true;  // so that up is +Y (default +Z)
-	loader.load( 'models/dae/monster.dae', function ( collada ) {
+	//loader.load( 'models/dae/monster.dae', function ( collada ) {
+	loader.load( 'models/dae/Football_Player.dae', function ( collada ) {
 		dae = collada.scene;
 
 		dae.traverse( function ( child ) {
