@@ -87,7 +87,7 @@ function init()
 	camera.lookAt (new THREE.Vector3(0,0,0));
 
 	container.appendChild (renderer.domElement); 
-	controls = new THREE.OrbitControls (camera, renderer.domElement, container);
+	controls = new THREE.OrbitControls (camera, renderer.domElement);
 
 	// first link
 	var boxGeometry = new THREE.BoxGeometry (60, 10,10);

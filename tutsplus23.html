@@ -49,12 +49,18 @@
     var WIDTH, HEIGHT, VIEW_ANGLE, ASPECT, NEAR, FAR;
 
 	var soundtrack;
-	var isPaused = false, soundVal = 1.0, sign = 1.0;
-  function toggle() {
-	  isPaused = !isPaused;
-	  sign = isPaused ? -1 : 1;
-	  console.log (isPaused);
-  }
+var isPaused = false, soundVal = 1.0, sign = 1.0;
+
+init();
+render(); 
+
+function toggle() {
+	isPaused = !isPaused;
+	sign = isPaused ? -1 : 1;
+	console.log (isPaused);
+}
+  
+  function init() {
     Physijs.scripts.worker = 'js/physijs/physijs_worker.js';
     Physijs.scripts.ammo = 'ammo.js';
 
@@ -69,13 +75,12 @@
 	
     scene = new Physijs.Scene();
     scene.setGravity(new THREE.Vector3( 0, -50, 0 ));
+	
     scene.addEventListener('update', function() {
       scene.simulate(undefined, 2);
     });
 
-    renderer = new THREE.WebGLRenderer({
-      antialias: true
-    });
+    renderer = new THREE.WebGLRenderer({ antialias: true });
 
     renderer.setSize(WIDTH, HEIGHT);
     renderer.shadowMapEnabled = true;
@@ -158,29 +163,30 @@
 	
 	window.addEventListener ('resize', onWindowResize, false);	
     
-	render();
-    scene.simulate()
+	scene.simulate(); // required! to start the simulation
+}
+ 
+function render() {
 
-    function render() {
-		soundVal += sign*0.01;
-		soundVal = THREE.Math.clamp (soundVal, 0, 1);
-		console.log (sign + ", " + soundVal);
-		soundtrack.volume = soundVal;
-		
-		for (var i = 5; i < scene.children.length - 5; i++) {
-        var obj = scene.children[i];
+	soundVal += sign*0.01;
+	soundVal = THREE.Math.clamp (soundVal, 0, 1);
+	console.log (sign + ", " + soundVal);
+	soundtrack.volume = soundVal;
 
-        if (obj.position.y <= -50) {
-          scene.remove(obj);
-        }
-      }
+	for (var i = 5; i < scene.children.length - 5; i++) {
+		var obj = scene.children[i];
 
-	  // to find out how many objects are there in the scene
-	  //console.log (scene.children.length);
+		if (obj.position.y <= -50) {
+		  scene.remove(obj);
+		}
+	}
 
-      renderer.render(scene, camera);
-      requestAnimationFrame(render);
-    }
+	// to find out how many objects are there in the scene
+	//console.log (scene.children.length);
+
+	renderer.render(scene, camera);
+	requestAnimationFrame(render);
+}
 	
 function onWindowResize()
 {

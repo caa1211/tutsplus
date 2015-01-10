@@ -94,7 +94,8 @@ function init()
 	container.appendChild (renderer.domElement); 
 	// I misspelled this, but no complaints, ...
 	//controls = new THREE.OrbitControls (camera, render.domElement, container);
-	controls = new THREE.OrbitControls (camera, renderer.domElement, container);
+	controls = new THREE.OrbitControls (camera, renderer.domElement);
+	
 
 	theta1 = theta2 = 0;
 	var boxGeometry = new THREE.BoxGeometry (60, 10,10);

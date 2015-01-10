@@ -46,13 +46,18 @@
 
 	var plane_geom, plane_mat;
 	
-	var soundtrack;
 	var isPaused = false, tiltAngle = 1.0, sign = 1.0;
-	  function modify() {
-		  isPaused = !isPaused;
-		  sign = isPaused ? -1 : 1;
-		  console.log (isPaused);
-	  }
+
+	init();
+	render();
+
+function modify() {
+	isPaused = !isPaused;
+	sign = isPaused ? -1 : 1;
+	console.log (isPaused);
+}	  
+
+function init() {  
     Physijs.scripts.worker = 'js/physijs/physijs_worker.js';
     Physijs.scripts.ammo = 'ammo.js';
 
@@ -63,17 +68,14 @@
     ASPECT = WIDTH / HEIGHT,
     NEAR = 1, FAR = 10000;
 
-	soundtrack = document.getElementById ('soundtrack');
-	
     scene = new Physijs.Scene();
     scene.setGravity(new THREE.Vector3( 0, -50, 0 ));
+	
     scene.addEventListener('update', function() {
       scene.simulate(undefined, 2);
     });
 
-    renderer = new THREE.WebGLRenderer({
-      antialias: true
-    });
+    renderer = new THREE.WebGLRenderer({ antialias: true });
 
     renderer.setSize(WIDTH, HEIGHT);
     renderer.shadowMapEnabled = true;
@@ -155,20 +157,21 @@
 	window.addEventListener ('resize', onWindowResize, false);	
     
 	render();
-    scene.simulate()
+    scene.simulate();
+}
 
-    function render() {
-		tiltAngle += sign*0.01;
-		tiltAngle = THREE.Math.clamp (tiltAngle, 0.01, 0.7);
-		console.log (sign + ", " + tiltAngle);
+function render() {
+	tiltAngle += sign*0.01;
+	tiltAngle = THREE.Math.clamp (tiltAngle, 0.01, 0.7);
+	console.log (sign + ", " + tiltAngle);
 	
 	plane.rotation.z = -tiltAngle;
 	plane.__dirtyRotation = true;
-		/*	
-		scene.remove (plane);
-plane = new Physijs.BoxMesh(
-      plane_geom,
-	  Physijs.createMaterial(
+	/*	
+	scene.remove (plane);
+	plane = new Physijs.BoxMesh(
+		plane_geom,
+		Physijs.createMaterial(
         plane_mat,
 		.4,
         .8
@@ -176,25 +179,25 @@ plane = new Physijs.BoxMesh(
       0
     );
 	plane.rotation.z = -tiltAngle;
-		plane.receiveShadow = true;
+	plane.receiveShadow = true;
 
-		scene.add (plane);
-*/
+	scene.add (plane);
+    */
 		
-		for (var i = 5; i < scene.children.length - 5; i++) {
+	for (var i = 5; i < scene.children.length - 5; i++) {
         var obj = scene.children[i];
 
         if (obj.position.y <= -50) {
           scene.remove(obj);
         }
-      }
+    }
 
 	  // to find out how many objects are there in the scene
 	  //console.log (scene.children.length);
 
       renderer.render(scene, camera);
       requestAnimationFrame(render);
-    }
+}
 	
 function onWindowResize()
 {
