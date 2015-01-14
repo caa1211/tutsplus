@@ -16,7 +16,6 @@
 
 <script>
 
-	var clock = new THREE.Clock();
 	var scene, renderer, camera;
 	var cube;
 
@@ -40,11 +39,6 @@
 	camera.position.y = 160;
 	camera.position.z = 400;
 	camera.lookAt (new THREE.Vector3(0,0,0));
-
-	var skyboxGeometry = new THREE.BoxGeometry (1000,1000,1000);
-	var skyboxMaterial = new THREE.MeshBasicMaterial ({color: 0x1f1f1f, side:THREE.BackSide});
-	var skybox = new THREE.Mesh (skyboxGeometry, skyboxMaterial);
-	scene.add (skybox);
 
 	var gridXZ = new THREE.GridHelper(100, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );

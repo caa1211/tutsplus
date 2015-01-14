@@ -13,6 +13,9 @@
 <body>
 
 <script src="js/three.min.js"></script>
+<script src="js/Stats.js"></script>
+<script src="js/Detector.js"></script>
+
 <script>
 
 var clock = new THREE.Clock();
@@ -29,11 +32,25 @@ function init()
 	var width = window.innerWidth;
 	var height = window.innerHeight;
 
-	renderer = new THREE.WebGLRenderer({antialias: true});
+	// create and start the renderer; choose antialias setting.
+	if ( Detector.webgl )
+		renderer = new THREE.WebGLRenderer( {antialias:true} );
+	else
+		renderer = new THREE.CanvasRenderer(); 	
+
+
 	renderer.setSize (width, height);
 	document.body.appendChild (renderer.domElement);
 
+	// STATS
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.top = '0px';
+	stats.domElement.style.zIndex = 100;
+	document.body.appendChild( stats.domElement );	
+
 	scene = new THREE.Scene();
+	
 
 	var cubeGeometry = new THREE.BoxGeometry (10,10,10);
 	var cubeMaterial = new THREE.MeshLambertMaterial ({color: 0x1ec876});
@@ -72,6 +89,8 @@ function onWindowResize ()
 
 function animate()
 {
+	stats.update();
+	
 	var dt = clock.getDelta();
 
 	var x = 50*Math.cos(angle);
@@ -81,8 +100,8 @@ function animate()
 	cube.rotation.y -= 5*dt;
 	angle -= dt;
 	
-	requestAnimationFrame ( animate );  // timer callback
-	render();  // display callback
+	requestAnimationFrame ( animate );  
+	render();  
 }
 
 
