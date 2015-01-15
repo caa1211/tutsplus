@@ -11,8 +11,8 @@
 </head>
 
 <body>
-
-<script src="js/r69/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.js"></script>
+<!--script src="js/r69/three.min.js"></script-->
 <script src="js/OrbitControls.js"></script>
 <script src="js/KeyboardState.js"></script>
 
@@ -63,9 +63,9 @@ function init()
 	scene.add (pointLight);
 
 	var jsonLoader = new THREE.JSONLoader();
-	//jsonLoader.load ("models/android.js", addModelToScene);
+	jsonLoader.load ("models/android.js", addModelToScene);
 	//jsonLoader.load ("models/teapot.js", addModelToScene);
-	jsonLoader.load ("models/toy-train.json", addModelToScene);
+	//jsonLoader.load ("models/toy-train.json", addModelToScene);  // bugging input
 	//jsonLoader.load ("models/stanford-dragon.json", addModelToScene);
 	//jsonLoader.load ("models/lee-perry-smith-head-scan.json", addModelToScene);
 	
@@ -75,7 +75,6 @@ function init()
 
 function addModelToScene ( geometry, materials )
 {
-	debugger;
 	var material = new THREE.MeshFaceMaterial (materials);
 	android = new THREE.Mesh (geometry, material);
 	android.scale.set (4,4,4);

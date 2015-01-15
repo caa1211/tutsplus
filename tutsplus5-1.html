@@ -49,11 +49,11 @@ var toycar;
 
 // state variables of toycar
 var pos = new THREE.Vector3(0,0,0);
-var vel = new THREE.Vector3(0,0,0), force = new THREE.Vector3();
-var power = 0;
-var theta = 0;
+var vel = new THREE.Vector3(0,0,0);
+var angle = 0;
 
-var force_gas = new THREE.Vector3(0,0,0);
+var force = new THREE.Vector3();
+var power = 0;
 
 init();
 animate();
@@ -103,37 +103,38 @@ function init()
 function animate()
 {
 	var dt = clock.getDelta();
-	
+
 	// euler's method
-	var tmp = new THREE.Vector3();
-	tmp.copy (vel);
-	tmp.multiplyScalar (dt);  // vel*dt
-	pos.add (tmp);  // pos = pos + vel*dt;
-	 
-	tmp.copy (force);
-	tmp.multiplyScalar (dt);  // force*dt
-	vel.add (tmp);  // vel = vel + force*dt
+	tmp = vel.clone();
+	tmp.multiplyScalar (dt);
+	pos.add (tmp);   // pos += vel*dt
+	
+	tmp = force.clone();
+	tmp.multiplyScalar (dt);
+	vel.add (tmp);   // vel += force*dt
 	
 	if (vel.length() > 0) {
-		theta = Math.atan2 (-vel.z, vel.x)
+		angle = Math.atan2 (-vel.z, vel.x);  // update orientation
 	}
 
 	if (toycar != undefined) { 
 		toycar.scale.set (0.2,0.2,0.2);
 		toycar.position.set (pos.x, pos.y, pos.z);
-		toycar.rotation.y = (theta+Math.PI/2);
+		toycar.rotation.y = (angle+Math.PI/2);
 	}
 	
 	requestAnimationFrame ( animate );  
 	update();
 	render();  
 }
+
 function onWindowResize()
 {
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
 	renderer.setSize (window.innerWidth, window.innerHeight);
 }
+
 function myclamp(x,lo,hi)
 {
 	if (x < lo) return lo;
@@ -154,28 +155,24 @@ function update()
 	if (keyboard.pressed("down"))  
 		power /= 1.2;    
 	
-	var theta_thrust = theta;
+	var angle_thrust = angle;
 	if (keyboard.pressed("left"))  
-		theta_thrust += 0.3;        
+		angle_thrust += 0.3;        
 	if (keyboard.pressed("right"))  
-		theta_thrust -= 0.3;       
+		angle_thrust -= 0.3;       
 	
 	power = myclamp (power, 0, 80.0);		
 
-	//console.log (theta_thrust + ", " + power);
+	// force: vel-aligned thrust
+	var force_gas = new THREE.Vector3(1,0,0);
+	force_gas.applyAxisAngle (new THREE.Vector3(0,1,0), angle_thrust);
+	force_gas.multiplyScalar (power);
 
-	var tmpV = new THREE.Vector3(1,0,0);
-	tmpV.applyAxisAngle (new THREE.Vector3(0,1,0), theta_thrust);
-	tmpV.multiplyScalar (power);
-	force_gas.copy (tmpV);
+	// force: vel-against damping
+	force_damp = vel.clone();
+	force_damp.multiplyScalar (-2);
 
-	// force accumulator
-	force.copy (force_gas);
-	var tmpF = new THREE.Vector3();
-	tmpF.copy (vel);
-	tmpF.multiplyScalar (-2);
-	force.add (tmpF);
-	
+	force.addVectors (force_gas, force_damp);
 }
 
 function render()

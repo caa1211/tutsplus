@@ -19,8 +19,6 @@
 <script src="js/loaders/OBJMTLLoader.js"></script>
 
 <script>
-////////////////////////////////////////////////////
-// global var's
 var clock = new THREE.Clock();
 var scene, renderer, camera;
 var controls, keyboard = new KeyboardState();
@@ -46,7 +44,7 @@ function init()
 
 	scene = new THREE.Scene();
 
-	camera = new THREE.PerspectiveCamera (45, width/height, 0.1, 10000000);
+	camera = new THREE.PerspectiveCamera (45, width/height, 1, 10000);
 	camera.position.y = 160;
 	camera.position.z = 400;
 	camera.lookAt (new THREE.Vector3(0,0,0));
@@ -60,12 +58,6 @@ function init()
 	
 	// add control here (after the camera is defined)
 	//controls = new THREE.OrbitControls (camera, render.domElement);
-
-	var skyboxGeometry = new THREE.BoxGeometry (10000,10000,10000);
-	var skyboxMaterial = new THREE.MeshBasicMaterial ({color: 0x222222, side:THREE.BackSide});
-	var skybox = new THREE.Mesh (skyboxGeometry, skyboxMaterial);
-	scene.add (skybox);
-
 	var gridXZ = new THREE.GridHelper(100, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
 	scene.add(gridXZ);
@@ -92,7 +84,7 @@ function animate()
 		toycar.position.set (pos.x, pos.y, pos.z);
 		toycar.rotation.y = (angle+Math.PI/2);
 
-		var relativeCameraOffset = new THREE.Vector3(0,150,-250);
+		var relativeCameraOffset = new THREE.Vector3 (0,150,-250);
 
 		var cameraOffset = relativeCameraOffset.applyMatrix4( toycar.matrixWorld );
 
@@ -102,9 +94,9 @@ function animate()
 		camera.lookAt( toycar.position );
 	}
 	
-	requestAnimationFrame ( animate );  // timer callback
+	requestAnimationFrame ( animate );  
 	update();
-	render();  // display callback
+	render();  
 }
 
 function myclamp(x,lo,hi)
@@ -117,14 +109,14 @@ function myclamp(x,lo,hi)
 function update()
 {
 	//controls.update();
-	keyboard.update();         // this is required; this is a different keyboard callback
-	if ( keyboard.pressed("left"))  // must use upper case!!
+	keyboard.update();         
+	if ( keyboard.pressed("left") )   
 		angle += 0.01;               
-	if ( keyboard.pressed("right"))  // must use upper case!!
+	if ( keyboard.pressed("right") )  
 		angle -= 0.01;               
-	if ( keyboard.pressed("up"))  // must use upper case!!
+	if ( keyboard.pressed("up") )  
 		speed += 0.5;        
-	if ( keyboard.pressed("down"))  // must use upper case!!
+	if ( keyboard.pressed("down") )  
 		speed -= 0.5;        
 	speed = myclamp (speed, 0.0, 20.0);		
 }

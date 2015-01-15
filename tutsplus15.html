@@ -62,7 +62,9 @@ function init()
 	camera.position.y = 160;
 	camera.position.z = 400;
 	camera.lookAt (new THREE.Vector3(0,0,0));
-	topCamera = new THREE.PerspectiveCamera (45, width/height, 1, 10000);
+	
+	//topCamera = new THREE.PerspectiveCamera (45, width/height, 1, 10000);
+	topCamera = new THREE.OrthographicCamera (-110,110,110,-110, 10, 2000);
 	topCamera.position.set (0,450,0);
 	topCamera.up.set (0,0,-1);
 	topCamera.lookAt (new THREE.Vector3(0,0,0));
@@ -73,20 +75,18 @@ function init()
 	// topCamera.up.set (0,0,-1);
 	
 	
-	var left_box_geom = new THREE.BoxGeometry (20,20,20);
-	var left_box_mat = new THREE.MeshLambertMaterial ({color: 0xff2211});
-	left_box = new THREE.Mesh (left_box_geom, left_box_mat);
+	// try a more concise syntax	
+	left_box = new THREE.Mesh (new THREE.BoxGeometry (20,20,20), 
+								new THREE.MeshLambertMaterial ({color: 0xff2211}) );
 	left_box.position.set (-50,10,0);
 	scene.add (left_box);
 		
-	var right_box_geom = new THREE.BoxGeometry (20,20,20);
-	var right_box_mat = new THREE.MeshLambertMaterial ({color: 0x22ff11});
-	right_box = new THREE.Mesh (right_box_geom, right_box_mat);
+	right_box = new THREE.Mesh (new THREE.BoxGeometry (20,20,20), 
+								new THREE.MeshLambertMaterial ({color: 0x22ff11}) );
 	right_box.position.set (50,10,0);
 	scene.add (right_box);
 
-	// add control here (after the camera is defined)
-	//controls = new THREE.OrbitControls (camera, render.domElement);
+	controls = new THREE.OrbitControls (camera, render.domElement);
 
 	var gridXZ = new THREE.GridHelper(100, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
@@ -104,25 +104,23 @@ function init()
 
 function animate()
 {
-	requestAnimationFrame ( animate );  // timer callback
-	update();
-	render();  // display callback
-}
+	requestAnimationFrame ( animate );  
 
-function update()
-{
-	//controls.update();
+	render();  
 }
 
 function onWindowResize()
 {
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
+		
 	renderer.setSize (window.innerWidth, window.innerHeight);
 }
 
 function render()
 {
+	controls.update();
+	
 	var SCREEN_W, SCREEN_H;
 	SCREEN_W = window.innerWidth;
 	SCREEN_H = window.innerHeight;
@@ -149,7 +147,8 @@ function render()
 	camera.updateProjectionMatrix();
 	renderer.render (scene,camera);
 	
-	}
+}
+
 </script>
 </body>
 
