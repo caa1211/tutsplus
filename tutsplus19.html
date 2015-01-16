@@ -96,7 +96,7 @@ function init()
 	objects.push (right_box);
 
 	// add control here (after the camera is defined)
-	//controls = new THREE.OrbitControls (camera, render.domElement);
+	//controls = new THREE.OrbitControls (camera, renderer.domElement);
 	controls = new THREE.TrackballControls( camera );
 	controls.rotateSpeed = 1.0;
 	controls.zoomSpeed = 1.2;
@@ -187,9 +187,9 @@ function onDocumentMouseUp( event ) {
 
 function animate()
 {
-	requestAnimationFrame ( animate );  // timer callback
+	requestAnimationFrame ( animate );  
 	update();
-	render();  // display callback
+	render();  
 }
 
 function update()

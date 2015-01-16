@@ -113,7 +113,7 @@ function init()
 		new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.25, transparent: true } )
 	);
 	plane.rotation.x = -Math.PI/2;
-	plane.visible = false;
+	//plane.visible = false;
 	scene.add( plane );
 	
 	var gridXZ = new THREE.GridHelper(100, 20);
@@ -159,6 +159,7 @@ function onDocumentMouseMove( event ) {
 			INTERSECTED = intersects[ 0 ].object;
 			INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
 			plane.position.copy( INTERSECTED.position );
+			
 			//plane.lookAt( camera.position );
 			//plane.position.copy (new THREE.Vector3(0,0,0));
 			//plane.lookAt (new THREE.Vector3 (0,5,0));

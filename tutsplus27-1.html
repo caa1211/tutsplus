@@ -35,16 +35,11 @@
 <div id="WebGL-output"> 
 </div> 
 
-  <!-- Javascript code that runs our Three.js examples --> 
 <script src="js/r69/three.js"></script> 
 <script src="js/OrbitControls.js"></script>
 <script src="js/KeyboardState.js"></script>
 
 <script>
-//////////////////////////////////
-/// from
-/// http://www.smartjava.org/ltjs/chapter-09/15-animation-from-md2.html
-////////////////////////////////////////////////////////////////////////////
 
 var scene, renderer, camera, mesh;
 var clock = new THREE.Clock();
@@ -56,17 +51,15 @@ render();
 
 function init () 
 {
-	// create a scene, that will hold all our elements such as objects, cameras and lights.
 	scene = new THREE.Scene();
 
-	// create a camera, which defines where we're looking at.
 	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-	// create a render and set the size
 	renderer = new THREE.WebGLRenderer();
 	renderer.setClearColor(new THREE.Color(0x888888, 1.0));
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.shadowMapEnabled = true;
+	document.body.appendChild (renderer.domElement);
 
 	// position and point the camera to the center of the scene
 	camera.position.x = -50;
@@ -85,9 +78,6 @@ function init ()
 	var gridXZ = new THREE.GridHelper(150, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
 	scene.add(gridXZ);
-
-	// add the output of the renderer to the html element
-	document.body.appendChild (renderer.domElement);
 
 	var loader = new THREE.JSONLoader();
 	loader.load('models/laalaa.js', function (geometry, mat) {
@@ -132,7 +122,7 @@ function render()
 	
 	angle += 0.01;
 	
-	if (mesh) {
+	if (mesh != undefined) {
 		mesh.position.x = 130*Math.cos(angle);
 		mesh.position.z = - 130*Math.sin(angle);
 		mesh.position.y = 25;
@@ -140,7 +130,7 @@ function render()
 
 		if (startJump) {
 			mesh.playAnimation('jump', 2);  // slow motion jump
-			console.log (mesh.startKeyframe, " ", mesh.endKeyframe);
+			// console.log (mesh.startKeyframe, " ", mesh.endKeyframe);
 			inJump = true;
 			startJump = false;
 		}
@@ -150,13 +140,11 @@ function render()
 			inJump = false;
 		}
 
-		console.log (mesh.currentKeyframe);
+		// console.log (mesh.currentKeyframe);
 		
 		mesh.updateAnimation(delta * 1000);   // in msecs
 	}
 
-
-	// render using requestAnimationFrame
 	requestAnimationFrame(render);
 	renderer.render(scene, camera);
 }

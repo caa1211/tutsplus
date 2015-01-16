@@ -35,11 +35,9 @@
 
 <script src="js/three.min.js"></script>
 <script src="js/OrbitControls.js"></script>
-<script src="js/KeyboardState.js"></script>
 
 <script>
-////////////////////////////////////////////////////
-// global var's
+
 var scene, renderer, camera;
 var controls;
 var tree, tree2;
@@ -76,12 +74,11 @@ function init()
 	);
 	
 	var face;
-	face = new THREE.Face3 (0,1,2); face.materialIndex = 0;
+	face = new THREE.Face3 (0,1,2); //face.materialIndex = 0;
 	geometry.faces.push (face);
-	face = new THREE.Face3 (0,2,3); face.materialIndex = 0;
+	face = new THREE.Face3 (0,2,3); //face.materialIndex = 0;
 	geometry.faces.push (face);
 
-	// required
 	geometry.faceVertexUvs[0].push( [new THREE.Vector2(0,0), new THREE.Vector2(1,0), new THREE.Vector2(1,1)] );				 
 	geometry.faceVertexUvs[0].push( [new THREE.Vector2(0,0), new THREE.Vector2(1,1), new THREE.Vector2(0,1)] );				 
 
@@ -89,13 +86,11 @@ function init()
 //	geometry.computeFaceNormals();
 //	geometry.computeVertexNormals();	
 
-
-	var materialArray = [];
-	materialArray.push (new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( 'images/shrub1.png' )}));
-	materialArray[0].side = THREE.DoubleSide;
-	materialArray[0].transparent = true; // key to cutout texture
-	//materialArray[0].alphaTest = 0;  // default value (0) SUFFICEs. cutout portion with zero alpha
-	var material = new THREE.MeshFaceMaterial (materialArray);
+	// singleton array  ...> just basicmaterial is fine ...
+	material = new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( 'images/shrub1.png' )} );
+	material.side = THREE.DoubleSide;
+	material.transparent = true; // key to cutout texture
+	
 	tree = new THREE.Mesh (geometry, material);
 	tree2 = new THREE.Mesh (geometry, material);
 	scene.add (tree);
@@ -122,46 +117,52 @@ function onWindowResize()
 
 function animate()
 {
-	requestAnimationFrame ( animate );  // timer callback
+	requestAnimationFrame ( animate );  
 	update();
-	render();  // display callback
+	render();  
 }
 
 function update()
 {
 	controls.update();
-//	console.log (camera.position);
 }
 
 function render()
 {
 	var rotaxis = new THREE.Vector3();
-
-	//var v = camera.position;   // copy: use its value; '=' change v will change camera
-	var v = new THREE.Vector3(); v.copy(camera.position);
-	var b = new THREE.Vector3 (50,0,0); // billboard location;
-	v.sub (b);  // v-b
-	//debugger;  // good use of breakpoint
-
-	var yhat = new THREE.Vector3 (0,1,0);
-	v.sub (yhat.multiplyScalar(v.dot(yhat)));  v.normalize();  // pxz
-	rotangle = Math.acos (v.dot(new THREE.Vector3(0,0,1)));
-	rotaxis = new THREE.Vector3();  // no need for 'var'?!
-	rotaxis.crossVectors (new THREE.Vector3(0,0,1),v);
-	if (rotaxis.dot(yhat) < 0) rotangle *= -1;
-	tree.rotation.y = rotangle;
-	tree.position.x = 50;
+	var b, v, yhat;
 	
-	var v2 = new THREE.Vector3(); v2.copy(camera.position);
-	var b2 = new THREE.Vector3 (-40,0,20); // billboard location;
-	v2.sub (b2);  // v-b
+	//////////////////////////////////////////////////////////////////////
+	b = new THREE.Vector3 (50,0,0); // billboard location;
+
+	v = camera.position.clone();
 	yhat = new THREE.Vector3 (0,1,0);
-	v2.sub (yhat.multiplyScalar(v2.dot(yhat)));  v2.normalize();  // pxz
-	rotangle = Math.acos (v2.dot(new THREE.Vector3(0,0,1)));
-	rotaxis.crossVectors (new THREE.Vector3(0,0,1),v2);
-	if (rotaxis.dot(yhat) < 0) rotangle *= -1;
+
+	v.sub (b);  // v-b
+	v.sub (yhat.multiplyScalar(v.dot(yhat)));  v.normalize();  // pxz
+
+	rotangle = Math.acos (v.dot(new THREE.Vector3(0,0,1)));
+	rotaxis.crossVectors (new THREE.Vector3(0,0,1),v);
+	if (rotaxis.dot(new THREE.Vector3(0,1,0)) < 0) rotangle *= -1;
+
+	tree.rotation.y = rotangle;
+	tree.position.copy (b);
+
+	//////////////////////////////////////////////////////////////////////
+	b = new THREE.Vector3 (-40,0,20); // billboard location;
+
+	v = camera.position.clone();
+	yhat = new THREE.Vector3 (0,1,0);
+
+	v.sub (b);  // v-b
+	v.sub (yhat.multiplyScalar(v.dot(yhat)));  v.normalize();  // pxz
+
+	rotangle = Math.acos (v.dot(new THREE.Vector3(0,0,1)));
+	rotaxis.crossVectors (new THREE.Vector3(0,0,1),v);
+	if (rotaxis.dot(new THREE.Vector3(0,1,0)) < 0) rotangle *= -1;
+
 	tree2.rotation.y = rotangle;
-	tree2.position.set (-40, 0, 20);
+	tree2.position.copy (b);
 
 	renderer.render (scene, camera);
 }
