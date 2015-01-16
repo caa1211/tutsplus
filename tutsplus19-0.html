@@ -19,14 +19,20 @@
 		text-align: center;
 		color: #ffff00
 	}
+	a {color: #00ffff}
+	strong {color:red}
 </style>
 </head>
 
 <body> 
+
+<div id="container"></div>
 <div id="info">
-webgl tutorial 19-0 <br/><br/>
-XZ Tracer
+    webgl tutorial 19-0 <br/><br/>
+	Picking
+	<br/><br/>
 </div>
+
 
 <script src="js/r69/three.min.js"></script>
 <script src="js/OrbitControls.js"></script>
@@ -36,11 +42,26 @@ XZ Tracer
 // global var's
 var scene, renderer, camera;
 var controls;
-var plane, cyl;
+
+var raycaster;
 var mouse = new THREE.Vector2();
+
+var left_box, right_box;
+var angle_l = 0, angle_r = 0;
+var spin_l = false, spin_r = false;
 
 init();
 animate();
+
+function spin (which) 
+{
+	if (which == "left") {
+		spin_l = true;
+	}
+	else {
+		spin_r = true;
+	}
+}
 
 function init()
 {
@@ -49,39 +70,37 @@ function init()
 
 	renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setSize (width, height);
-	renderer.setClearColor (0x777777);
-	
+	renderer.setClearColor (0x888888);
 	document.body.appendChild (renderer.domElement);
-	
+
 	scene = new THREE.Scene();
 
 	// picking problem comes from far/near ratio too big (was 0.1, 100000000)
 	camera = new THREE.PerspectiveCamera (45, width/height, 1, 10000);
 	camera.position.x = 0;
-	camera.position.y = 80;
-	camera.position.z = 200;
+	camera.position.y = 160;
+	camera.position.z = 400;
 	camera.lookAt (new THREE.Vector3(0,0,0));
 
-	var cyl_geom = new THREE.CylinderGeometry (10,10,6,32);
-	var cyl_mat = new THREE.MeshLambertMaterial ({color: 0xff2211});
-	cyl = new THREE.Mesh (cyl_geom, cyl_mat);
-	cyl.position.set (-20,0,20);
-	cyl.name = "leftB";
-	scene.add (cyl);
+	var left_box_geom = new THREE.BoxGeometry (20,20,20);
+	var left_box_mat = new THREE.MeshLambertMaterial ({color: 0xff2211});
+	left_box = new THREE.Mesh (left_box_geom, left_box_mat);
+	left_box.position.set (-50,10,0);
+	left_box.name = "leftB";
+	scene.add (left_box);
+		
+	var right_box_geom = new THREE.BoxGeometry (20,20,20);
+	var right_box_mat = new THREE.MeshLambertMaterial ({color: 0x22ff11});
+	right_box = new THREE.Mesh (right_box_geom, right_box_mat);
+	right_box.position.set (50,10,0);
+	right_box.name = "rightB";
+	scene.add (right_box);
 
 	// add control here (after the camera is defined)
 	controls = new THREE.OrbitControls (camera, render.domElement);
-	plane = new THREE.Mesh(
-		new THREE.PlaneBufferGeometry( 200, 200, 8, 8 ),
-		new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.25, transparent: true } )
-	);
-	plane.rotation.x = -Math.PI/2;
-	plane.visible = false;   // invisible, for picking only
-	scene.add( plane );
-	
-	var gridXZ = new THREE.GridHelper(100, 20);
+
+	var gridXZ = new THREE.GridHelper(100, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
-	gridXZ.position.set (0,0,0); 
 	scene.add(gridXZ);
 
 	var pointLight = new THREE.PointLight (0xffffff);
@@ -92,30 +111,64 @@ function init()
 	scene.add(ambientLight);
 	
 	window.addEventListener ('resize', onWindowResize, false);	
-	window.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
+	raycaster = new THREE.Raycaster();
+	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 }
 
-function onDocumentMouseMove( event ) {
+function onDocumentMouseDown( event ) {
+
+	// PICKING DETAILS: 
+	// convert mouse.xy = [-1,1]^2 (NDC)
+	// unproject (mouse.xy, 1) to a point on the far plane (in world coordinate)
+	// set raycaster (origin, direction)
+	// find intersection objects, (closest first) 
+	// each record as
+	// [ { distance, point, face, faceIndex, object }, ... ]
+
 	event.preventDefault();
 	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-	
-	var vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 ).unproject( camera );
-	var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
 
-	var intersects = raycaster.intersectObject( plane );
-	if (intersects.length > 0) {
-		var move = intersects[0].point.clone();//.sub (offset);
-		cyl.position.copy (move);
+	// find intersections
+	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 ).unproject( camera );
+	raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
+	var intersects = raycaster.intersectObjects( scene.children );
+	if ( intersects.length > 0 ) {
+		if (intersects[0].object.name === "leftB") spin ("left");
+		else if (intersects[0].object.name === "rightB") spin ("right");
 	}
+	
 }
 
 function animate()
 {
-	requestAnimationFrame ( animate );  
+	if (spin_l) {
+		angle_l += 0.1;
+		if (angle_l > Math.PI) {
+			angle_l = 0.0;
+			spin_l = false;
+		}
+	}
+	if (spin_r) {
+		angle_r += 0.1;
+		if (angle_r > Math.PI) {
+			angle_r = 0.0;
+			spin_r = false;
+		}
+	}
+	
+	left_box.rotation.y = angle_l;
+	right_box.rotation.y = angle_r;
+
+	requestAnimationFrame ( animate );  // timer callback
+	update();
+	render();  // display callback
+}
+
+function update()
+{
 	controls.update();
-	render(); 
 }
 
 function onWindowResize()

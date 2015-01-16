@@ -19,28 +19,46 @@
 		text-align: center;
 		color: #ffff00
 	}
+	a {color: yellow}
 	strong {color:red}
 </style>
 </head>
 
 <body>
-
+<div id="container"></div>
 <div id="info">
-    webgl tutorial 22 <br/>
-	Texture Map (REPLACE)<br/>
+    webgl tutorial 22 <br/><br/>
+	Texture Map<br/>
+	<a href="javascript:toggleLight();">Toggle Light</a>
 </div>
-
-
-<script src="js/three.min.js"></script>
+<script src="js/r69/three.min.js"></script>
 <script src="js/OrbitControls.js"></script>
-<script src="js/KeyboardState.js"></script>
 
 <script>
-var scene, renderer, camera;
-var controls, keyboard = new KeyboardState();
+var scene, renderer, camera, controls;
+var pointLight;
+var lightmodel;
 
 init();
 animate();
+
+// https://github.com/mrdoob/three.js/issues/1945
+var lighton = true, turn = true;
+function toggleLight()
+{
+	lighton = !lighton;
+	console.log (scene.children.length);
+	if (! lighton) {
+		scene.remove (pointLight);
+		lightmodel.visible = false;
+		turn = false;
+	} else {
+		scene.add (pointLight);
+		lightmodel.visible = true;
+		turn = true;
+	}
+	
+}
 
 function init()
 {
@@ -49,22 +67,10 @@ function init()
 
 	renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setSize (width, height);
-	renderer.setClearColor (0x888888);
 	document.body.appendChild (renderer.domElement);
-
-	scene = new THREE.Scene();
-
-	// FLOOR
-	var floorTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
-	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
-	floorTexture.repeat.set( 4, 4 );
-	var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+	renderer.setClearColor (0x888888);
 	
-	var floorGeometry = new THREE.PlaneGeometry(500, 500);//, 10, 10);  // not clear what segment does
-	var floor = new THREE.Mesh(floorGeometry, floorMaterial);
-	floor.position.y = -0.5;
-	floor.rotation.x = Math.PI / 2;
-	scene.add(floor);
+	scene = new THREE.Scene();
 
 	camera = new THREE.PerspectiveCamera (45, width/height, 1, 10000);
 	camera.position.y = 160;
@@ -74,10 +80,6 @@ function init()
 	// add control here (after the camera is defined)
 	controls = new THREE.OrbitControls (camera, render.domElement);
 
-	var pointLight = new THREE.PointLight (0xffffff);
-	pointLight.position.set (0,300,200);
-	scene.add (pointLight);
-	
 	// create an array with six textures for a cool cube
 	var materialArray = [];
 	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/Dice-Blue-1.png' ) }));
@@ -91,14 +93,63 @@ function init()
 	
 	var DiceBlueGeom = new THREE.BoxGeometry( 85, 85, 85, 1, 1, 1 );
 	var DiceBlue = new THREE.Mesh( DiceBlueGeom, DiceBlueMaterial );
-	DiceBlue.position.set(60, 50, -100);
+	DiceBlue.position.set(60, 50, 0);
 	scene.add( DiceBlue );	
 	
-	var ambientLight = new THREE.AmbientLight (0x111111);
+	// FLOOR
+	var floorTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
+	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
+	floorTexture.repeat.set( 4, 4 );
+	var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+	
+	var floorGeometry = new THREE.PlaneGeometry(500, 500);//, 10, 10);  // not clear what segment does
+	var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+	floor.position.y = -0.5;
+	floor.rotation.x = Math.PI / 2;
+	scene.add(floor);
+
+
+	var geometry = new THREE.Geometry();
+	geometry.vertices.push (
+		new THREE.Vector3 ( -50,0,0),
+		new THREE.Vector3 (  50,0,0),
+		new THREE.Vector3 ( 50,100,0),
+		new THREE.Vector3 (-50,100,0)
+	);
+	var face;
+	face = new THREE.Face3 (0,1,2); 
+	geometry.faces.push (face);
+	face = new THREE.Face3 (0,2,3); //face.materialIndex = 0;
+	geometry.faces.push (face);
+	
+	geometry.faceVertexUvs[0].push ([new THREE.Vector2(0,0),new THREE.Vector2(1,0),new THREE.Vector2(1,1)]);
+	geometry.faceVertexUvs[0].push ([new THREE.Vector2(0,0),new THREE.Vector2(1,1),new THREE.Vector2(0,1)]);
+
+	geometry.computeBoundingSphere();
+	geometry.computeFaceNormals();
+	geometry.computeVertexNormals();
+
+	material = new THREE.MeshLambertMaterial (
+		{map: new THREE.ImageUtils.loadTexture ('images/brick.png'),
+		side: THREE.DoubleSide}
+	);
+	
+
+	var bs = new THREE.Mesh (geometry, material);
+	bs.position.set (-50,0,0);
+	scene.add (bs);
+	
+	var ambientLight = new THREE.AmbientLight (0x555555);
 	scene.add(ambientLight);
+
+	pointLight = new THREE.PointLight (0xffffff);
+	pointLight.position.set (0,300,200);
+	scene.add (pointLight);
+
+	lightmodel = new THREE.Mesh (new THREE.SphereGeometry (5), new THREE.MeshBasicMaterial({color:0xffff00}));
+	scene.add (lightmodel);
 	
 	window.addEventListener ('resize', onWindowResize, false);	
-	
 }
 
 function onWindowResize()
@@ -108,11 +159,17 @@ function onWindowResize()
 	renderer.setSize (window.innerWidth, window.innerHeight);
 }
 
+var angle = 0;
 function animate()
 {
+	if (turn) 
+		angle += 0.02;
+	pointLight.position.set (150*Math.cos(angle), 75, 150*Math.sin(angle));
+	lightmodel.position.copy (pointLight.position);
+	
 	requestAnimationFrame ( animate );  
 	update();
-	render();  
+	render(); 
 }
 
 function update()
@@ -124,6 +181,8 @@ function render()
 {
 	renderer.render (scene, camera);
 }
+
+
 </script>
 </body>
 
