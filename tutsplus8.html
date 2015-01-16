@@ -38,8 +38,6 @@
 <script src="js/KeyboardState.js"></script>
 
 <script>
-////////////////////////////////////////////////////
-// global var's
 var clock = new THREE.Clock();
 var scene, renderer, camera;
 var controls, keyboard = new KeyboardState();
@@ -57,6 +55,8 @@ function init()
 
 	renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setSize (width, height);
+	renderer.setClearColor (0x888888);
+	
 	document.body.appendChild (renderer.domElement);
 
 	scene = new THREE.Scene();
@@ -70,9 +70,6 @@ function init()
 		new THREE.Vector3(  5, 10,  0 ),
 		new THREE.Vector3( -5, 10,  0 )
 	);
-
-	// no more face4 in three.js!
-	// http://stackoverflow.com/questions/14716128/three-js-texture-for-mesh-with-custom-geometry
 	
 	var face;
 	face = new THREE.Face3 (0,1,5); face.materialIndex = 0;
@@ -113,18 +110,13 @@ function init()
 	cube = new THREE.Mesh (geometry, material);
 	scene.add (cube);
 
-	camera = new THREE.PerspectiveCamera (45, width/height, 0.1, 10000000);
+	camera = new THREE.PerspectiveCamera (45, width/height, 1, 10000);
 	camera.position.y = 160;
 	camera.position.z = 400;
 	camera.lookAt (new THREE.Vector3(0,0,0));
 
 	// add control here (after the camera is defined)
 	controls = new THREE.OrbitControls (camera, render.domElement);
-
-	var skyboxGeometry = new THREE.BoxGeometry (10000,10000,10000);
-	var skyboxMaterial = new THREE.MeshBasicMaterial ({color: 0x222222, side:THREE.BackSide});
-	var skybox = new THREE.Mesh (skyboxGeometry, skyboxMaterial);
-	scene.add (skybox);
 
 	var gridXZ = new THREE.GridHelper(100, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
@@ -153,16 +145,16 @@ function animate()
 		cube.rotation.y -= 5*dt;
 	}
 	
-	requestAnimationFrame ( animate );  // timer callback
+	requestAnimationFrame ( animate ); 
 	update();
-	render();  // display callback
+	render();  
 }
 
 function update()
 {
 	controls.update();
-	keyboard.update();         // this is required; this is a different keyboard callback
-	if ( keyboard.down("Z"))  // must use upper case!!
+	keyboard.update();         
+	if ( keyboard.down("Z"))  
 		turn ^= 1;               
 }
 function onWindowResize()

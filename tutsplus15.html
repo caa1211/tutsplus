@@ -62,8 +62,7 @@ function init()
 	camera.position.y = 160;
 	camera.position.z = 400;
 	camera.lookAt (new THREE.Vector3(0,0,0));
-	
-	//topCamera = new THREE.PerspectiveCamera (45, width/height, 1, 10000);
+
 	topCamera = new THREE.OrthographicCamera (-110,110,110,-110, 10, 2000);
 	topCamera.position.set (0,450,0);
 	topCamera.up.set (0,0,-1);
@@ -105,7 +104,7 @@ function init()
 function animate()
 {
 	requestAnimationFrame ( animate );  
-
+	controls.update();
 	render();  
 }
 
@@ -119,18 +118,12 @@ function onWindowResize()
 
 function render()
 {
-	controls.update();
-	
 	var SCREEN_W, SCREEN_H;
 	SCREEN_W = window.innerWidth;
 	SCREEN_H = window.innerHeight;
-	camera.aspect = SCREEN_W/SCREEN_H;
-	camera.updateProjectionMatrix();
-	renderer.setViewport (0,0,SCREEN_W, SCREEN_H);
-	renderer.clear();
-	
+
 	var left,bottom,width,height;
-	
+
 	left = 1; bottom = 1; width = 0.5*SCREEN_W-2; height = SCREEN_H-2;
 	renderer.setViewport (left,bottom,width,height);
 	renderer.setScissor(left,bottom,width,height);
@@ -142,7 +135,7 @@ function render()
 	left = 0.5*SCREEN_W+1; bottom = 1; width = 0.5*SCREEN_W-2; height = SCREEN_H-2;
 	renderer.setViewport (left,bottom,width,height);
 	renderer.setScissor(left,bottom,width,height);
-	renderer.enableScissorTest (true);
+	renderer.enableScissorTest (true);  // clip out "viewport"
 	camera.aspect = width/height;
 	camera.updateProjectionMatrix();
 	renderer.render (scene,camera);
