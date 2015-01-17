@@ -117,6 +117,7 @@ function init()
 	scene.add(ambientLight);
 	window.addEventListener ('resize', onWindowResize, false);	
 }
+
 function onWindowResize()
 {
 	camera.aspect = window.innerWidth / window.innerHeight;
@@ -130,12 +131,11 @@ function animate()
 	var dt = clock.getDelta();
 	
 	// euler's method
-	var tmp = new THREE.Vector3();
-	tmp.copy (boat.vel);
+	var tmp = boat.vel.clone();
 	tmp.multiplyScalar (dt);  // vel*dt
 	boat.pos.add (tmp);  // pos = pos + vel*dt;
 	 
-	tmp.copy (boat.force);
+	tmp = boat.force.clone();
 	tmp.multiplyScalar (dt);  // force*dt
 	boat.vel.add (tmp);  // vel = vel + force*dt
 	
@@ -173,29 +173,24 @@ function update()
 	if (keyboard.pressed("down"))  
 		boat.power /= 1.2;    
 	
-	var theta_thrust = boat.theta;
+	var angle_thrust = boat.theta;
 	if (keyboard.pressed("left"))  
-		theta_thrust += 0.3;        
+		angle_thrust += 0.3;        
 	if (keyboard.pressed("right"))  
-		theta_thrust -= 0.3;       
+		angle_thrust -= 0.3;       
 	
 	boat.power = myclamp (boat.power, 0, 40.0);		
 
-	//console.log (boat.theta_thrust + ", " + boat.power);
+	// force: vel-aligned thrust
+	var force_gas = new THREE.Vector3(1,0,0);
+	force_gas.applyAxisAngle (new THREE.Vector3(0,1,0), angle_thrust);
+	force_gas.multiplyScalar (boat.power);
 
-	var force_gas = new THREE.Vector3(0,0,0);
-	
-	var tmpV = new THREE.Vector3(1,0,0);
-	tmpV.applyAxisAngle (new THREE.Vector3(0,1,0), theta_thrust);
-	tmpV.multiplyScalar (boat.power);
-	force_gas.copy (tmpV);
+	// force: vel-against damping
+	force_damp = boat.vel.clone();
+	force_damp.multiplyScalar (-2);
 
-	// force accumulator
-	boat.force.copy (force_gas);
-	var tmpF = new THREE.Vector3();
-	tmpF.copy (boat.vel);
-	tmpF.multiplyScalar (-2);
-	boat.force.add (tmpF);
+	boat.force.addVectors (force_gas, force_damp);
 	
 }
 

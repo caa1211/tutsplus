@@ -37,7 +37,7 @@
 <body>
 <div id="container"></div>
 <div id="info">
-    webgl tutorial 31 <br/><br/>
+    webgl tutorial S-2p <br/><br/>
 	GLSL Multi-Texture<br/>
 	<a href="javascript:spot();">spot toggle</a>
 </div>
@@ -74,14 +74,22 @@
 <!--UPLOAD TEXTURE-->
 
 <script>
+/*
+File Reader 是html5 新的 api ，它可以 拿到 dataURL，
+它只是base64 encode 的 data stream，所以 需要 經過 image tag 
+利用browser 能力 "翻譯成" image，three.js 的texture 是吃 image 格式
+*/
+
 var scene, renderer, camera, controls;
 var pointLight;
 
-init();
-animate();
-
 var spot_on = true;
 var cylinderMat;
+
+var	 materialArray;
+
+init();
+animate();
 
 function spot()
 {
@@ -96,7 +104,6 @@ function spot()
 }
 
 
-var	 materialArray;
 
 function init()
 {
@@ -177,7 +184,7 @@ function init()
 				try {
 					image.src = contents;
 
-					//Juse for preview and debug
+					//Just for preview and debug
 					var img1 = document.getElementById("img1");
 					img1.src = contents;
 
@@ -212,11 +219,8 @@ function init()
 	materialArray = [];
 	materialArray.push (material_shh);
 
-	// all face uses the same material; 
-	// no need for MeshFaceMaterial (materialArray)
 	material_shh.side = THREE.DoubleSide;
 	
-	// cannot give color/ambient & map at the same time!
 	var material_ceil = new THREE.MeshLambertMaterial ( 
 		{map: new THREE.ImageUtils.loadTexture ('images/brick.png')}
 	);
@@ -243,7 +247,6 @@ function onWindowResize()
 function animate()
 {
 	requestAnimationFrame ( animate );
-	//debugger;
 	if (spot_on) 
 		materialArray[0].uniforms.spot_on.value = 1;
 	else

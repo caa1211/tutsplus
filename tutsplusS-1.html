@@ -65,19 +65,17 @@
 	}
 </script>
 <script>
-////////////////////////////////////////////////////
-// global var's
 
-var clock = new THREE.Clock();
 var scene, renderer, camera;
 var teapot;
 var controls;
 var pointLight;
+var angle = 0;
+var teapotMaterial;
 
 init();
 animate();
 
-var teapotMaterial;
 function init()
 {
 	var width = window.innerWidth;
@@ -103,7 +101,6 @@ function init()
 	scene.add(gridXZ);
 
 	pointLight = new THREE.PointLight (0xffffff);
-	//pointLight.position.set (0,300,200);
 	scene.add (pointLight);
 
 	lightmodel = new THREE.Mesh (new THREE.SphereGeometry (3,16,16), new THREE.MeshBasicMaterial ({color:0xffff00}));
@@ -137,10 +134,11 @@ function onWindowResize()
 	renderer.setSize (window.innerWidth, window.innerHeight);
 }
 
-var angle = 0;
+
 function animate()
 {
 	angle += 0.01;
+	
 	pointLight.position.set (50*Math.cos(angle), 75, 50*Math.sin(angle));
 
 	// update the uniform variable

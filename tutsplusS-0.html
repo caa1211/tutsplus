@@ -48,18 +48,17 @@
 	}
 </script>
 <script>
-////////////////////////////////////////////////////
-// global var's
 
 var clock = new THREE.Clock();
 var scene, renderer, camera;
 var teapot;
 var controls;
 
+var teapotMaterial;
+
 init();
 animate();
 
-var teapotMaterial;
 function init()
 {
 	var width = window.innerWidth;
