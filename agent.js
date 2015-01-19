@@ -17,20 +17,21 @@ var Agent = function (pos, vel) {
 	this.target = new THREE.Vector3();
 	this.pos.copy (pos);
 	this.vel.copy (vel);
-	this.size = 3;
+	this.size = 3;  // physical size of the character
 	this.mesh = new THREE.Mesh (new THREE.CylinderGeometry(3,3,1,20),
 			new THREE.MeshBasicMaterial({color:0xff0000}));
 };
 
-Agent.prototype.step = function (dt) {
+Agent.prototype.step = function (dt) 
+{
 	this.accumForce();
-	var tmp = new THREE.Vector3();
-	// implement: vel += force*dt
-	tmp.copy (this.force);
+	
+	// vel += force*dt
+	var tmp = this.force.clone();
 	tmp.multiplyScalar (dt);
-	this.vel.add (tmp);
+	this.vel.add (tmp);  
 
-	// arriving
+	// velocity modulation by arriving
 	var diff = new THREE.Vector3();
 	diff.subVectors (this.target, this.pos);
 	var dst = diff.length();
@@ -38,10 +39,10 @@ Agent.prototype.step = function (dt) {
 		this.vel.setLength (dst);	
 	}
 	
-	// implement: pos += vel*dt
+	// pos += vel*dt
 	tmp.copy (this.vel);
 	tmp.multiplyScalar (dt);
-	this.pos.add (tmp);
+	this.pos.add (tmp); 
 };
 
 Agent.prototype.accumForce = function ()
@@ -59,8 +60,7 @@ Agent.prototype.accumForce = function ()
 	sum.subVectors (tmp, this.vel);
 
 	// collision
-	var vhat = this.vel.clone();
-	vhat.normalize();
+	var vhat = this.vel.clone().normalize();
 	tmp.subVectors (ob.center, this.pos); // c-p
 	var tll = tmp.dot(vhat);
 

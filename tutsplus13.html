@@ -42,8 +42,6 @@
 <script src="js/OrbitControls.js"></script>
 
 <script>
-////////////////////////////////////////////////////
-// global var's
 var scene, renderer, camera;
 var controls;
 
@@ -54,6 +52,7 @@ var left_count = 0, right_count = 0;
 
 init();
 animate();
+
 function clearlog()
 {
 	localStorage.setItem ("left_count", 0);
@@ -115,11 +114,6 @@ function init()
 	// add control here (after the camera is defined)
 	controls = new THREE.OrbitControls (camera, renderer.domElement);
 
-	var skyboxGeometry = new THREE.BoxGeometry (10000,10000,10000);
-	var skyboxMaterial = new THREE.MeshLambertMaterial ({color: 0x222222, side:THREE.BackSide});
-	var skybox = new THREE.Mesh (skyboxGeometry, skyboxMaterial);
-	scene.add (skybox);
-
 	var gridXZ = new THREE.GridHelper(100, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
 	scene.add(gridXZ);
@@ -154,9 +148,9 @@ function animate()
 	left_box.rotation.y = angle_l;
 	right_box.rotation.y = angle_r;
 
-	requestAnimationFrame ( animate );  // timer callback
+	requestAnimationFrame ( animate );  
 	update();
-	render();  // display callback
+	render();  
 }
 
 function update()

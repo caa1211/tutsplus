@@ -1,12 +1,11 @@
-
 <!DOCTYPE html>
 <html>
  <head> 
   <title>Bump maps</title> 
-  <script type="text/javascript" src="js/r69/three.min.js"></script> 
+  <script src="js/r69/three.min.js"></script> 
   <script src="js/OrbitControls.js"></script>
-  <script type="text/javascript" src="js/dat.gui.min.js"></script> 
-<style>
+  <script src="js/dat.gui.min.js"></script>
+  <style>
 	body {
 		background-color: #fff;
 		color: #111;
@@ -29,7 +28,8 @@
 </style>
 
 </head> 
- <body> 
+
+<body> 
  <div id="info">
     webgl tutorial 29 <br/><br/>
 	Bump Map <br/>
@@ -37,33 +37,26 @@
 	(Derivative Map)</a>
 </div>
 
-  <!-- Div which will hold the Output --> 
-  <div id="WebGL-output"> 
-  </div> 
-  <!-- Javascript code that runs our Three.js examples --> 
-  <script type="text/javascript">
+<script>
 
-var scene, camera, webGLRenderer, step;
+var scene, camera, webGLRenderer;
 var controls;
+var orbitcontrols;
 
 init();
 render();
 
 function init() 
 {
-        // create a scene, that will hold all our elements such as objects, cameras and lights.
         scene = new THREE.Scene();
 
-        // create a camera, which defines where we're looking at.
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-        // create a render and set the size
         webGLRenderer = new THREE.WebGLRenderer();
-        webGLRenderer.setClearColor(new THREE.Color(0xEEEEEE, 1.0));
+        webGLRenderer.setClearColor(0xEEEEEE, 1.0);
         webGLRenderer.setSize(window.innerWidth, window.innerHeight);
-        webGLRenderer.shadowMapEnabled = true;
 
-		controls = new THREE.OrbitControls (camera, webGLRenderer.domElement);
+		orbitcontrols = new THREE.OrbitControls (camera, webGLRenderer.domElement);
 		
         var sphere1 = createMesh(new THREE.BoxGeometry(15, 15, 2), "stone.jpg");
         sphere1.rotation.y = -0.75;
@@ -74,7 +67,8 @@ function init()
         sphere2.rotation.y = 0.75;
         sphere2.position.x = -12;
         scene.add(sphere2);
-        console.log(sphere2.geometry.faceVertexUvs);
+
+        //console.log(sphere2.geometry.faceVertexUvs);
 
         var floorTex = THREE.ImageUtils.loadTexture("images/floor-wood.jpg")
         var plane = new THREE.Mesh(new THREE.BoxGeometry(200, 100, 0.1, 30), new THREE.MeshPhongMaterial({color: 0x3c3c3c, map: floorTex}));
@@ -98,26 +92,9 @@ function init()
 
 		document.body.appendChild (webGLRenderer.domElement);
 
-        // call the render function
-        step = 0;
-
-//        var polyhedron = createMesh(new THREE.PolyhedronGeometry(vertices, faces, controls.radius, controls.detail));
-
-/*
         // setup the control gui
-        var controls = new function () {
+        controls = new function () {
             this.bumpScale = 0.2;
-            this.changeTexture = "weave";
-            this.rotate = false;
-
-            this.changeTexture = function (e) {
-                var texture = THREE.ImageUtils.loadTexture("../assets/textures/general/" + e + ".jpg");
-                sphere2.material.map = texture;
-                sphere1.material.map = texture;
-
-                var bump = THREE.ImageUtils.loadTexture("../assets/textures/general/" + e + "-bump.jpg");
-                sphere2.material.bumpMap = bump;
-            }
 
             this.updateBump = function (e) {
                 console.log(sphere2.material.bumpScale);
@@ -127,12 +104,11 @@ function init()
 
 
         var gui = new dat.GUI();
-        gui.add(controls, "bumpScale", -2, 2).onChange(controls.updateBump);
-        gui.add(controls, "changeTexture", ['stone', 'weave']).onChange(controls.changeTexture);
-        gui.add(controls, "rotate");
-*/
-	window.addEventListener ('resize', onWindowResize, false);	
+        gui.add(controls, "bumpScale", 0, 1).onChange(controls.updateBump);
+
+		window.addEventListener ('resize', onWindowResize, false);	
 }
+
 function onWindowResize()
 {
 	camera.aspect = window.innerWidth / window.innerHeight;
@@ -140,43 +116,30 @@ function onWindowResize()
 	webGLRenderer.setSize (window.innerWidth, window.innerHeight);
 }
 
-        function createMesh(geom, imageFile, bump) {
-            var texture = THREE.ImageUtils.loadTexture("images/" + imageFile)
-            geom.computeVertexNormals();
-            var mat = new THREE.MeshPhongMaterial();
-            mat.map = texture;
+function createMesh(geom, imageFile, bump) 
+{
+	geom.computeVertexNormals();
 
-            if (bump) {
-                var bump = THREE.ImageUtils.loadTexture("images/" + bump)
-                mat.bumpMap = bump;
-                mat.bumpScale = 0.2;
-                console.log('d');
-            }
+	var mat = new THREE.MeshPhongMaterial();
+	var texture = THREE.ImageUtils.loadTexture("images/" + imageFile)
+	mat.map = texture;
 
+	if (bump) {
+		var bump = THREE.ImageUtils.loadTexture("images/" + bump)
+		mat.bumpMap = bump;
+		mat.bumpScale = 0.2;
+	}
 
-            // create a multimaterial
-            var mesh = new THREE.Mesh(geom, mat);
+	var mesh = new THREE.Mesh(geom, mat);
 
-            return mesh;
-        }
+	return mesh;
+}
 
-        function render() {
-			controls.update();
-/*
-            if (controls.rotate) {
-                sphere1.rotation.y -= 0.01;
-                sphere2.rotation.y += 0.01;
-            }
-*/
-//            sphere1.rotation.y=step+=0.01;
-//            sphere1.rotation.x=step;
-//            sphere2.rotation.y=step;
-//            sphere2.rotation.x=step;
-
-            // render using requestAnimationFrame
-            requestAnimationFrame(render);
-            webGLRenderer.render(scene, camera);
-        }
+function render() {
+	orbitcontrols.update();
+	requestAnimationFrame(render);
+	webGLRenderer.render(scene, camera);
+}
 
 
 </script>  
