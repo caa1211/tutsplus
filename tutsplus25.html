@@ -17,33 +17,58 @@
 		
 		padding: 5px;
 		text-align: center;
-		color: #ffff00
+		color: #444400
 	}
+	#info2 {
+		position: absolute;
+		bottom: 50px; width: 100%;
+		text-align: center;
+		color: #444400
+	}
+	a {color: 0x005500}
 </style>
 </head>
 
 <body> 
 <div id="info">
-webgl tutorial 25 <br/><br/>
-Sketcher
+webgl tutorial 25: Sketcher <br/>
+Left button to add; Right button to terminate <br/>
+</div>
+<div id="info2">
+Hit 'C' to clear; Hit 'S' to save; Hit 'R' to read <br/>
 </div>
 
 <script src="js/r69/three.min.js"></script>
+<script src="js/KeyboardState.js"></script>
+<script src="lineUtil.js"></script>
 
 <script>
+// q: to use right button?
+// to use file for i/o
 
 var scene, renderer, camera;
 var plane, cyl;
 var mouse = new THREE.Vector2();
+var keyboard = new KeyboardState();
 
 var myLine;
-var MAX_LINE_POINTS = 100;
 
-var lineGeometry;
-
+var nolineyet = true;
+//var contour = "3 1 1 2 3 3 0";
 
 init();
 animate();
+
+
+
+// this little function turns off the default "right-button" menu in 
+// canvas window
+document.oncontextmenu = function(e){
+   
+//        console.log("my function");
+        return false;  
+};
+
 
 function init()
 {
@@ -70,46 +95,15 @@ function init()
 	gridXZ.rotation.x = Math.PI/2;
 	scene.add(gridXZ);
 
+	//readContour();
+	
 	window.addEventListener ('resize', onWindowResize, false);	
 	window.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	window.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
-/*	
-	lineGeometry = new THREE.Geometry();
-	lineGeometry.vertices.push( new THREE.Vector3(7,5,0), new THREE.Vector3(4, 12, 0), new THREE.Vector3(-10, 10, 0) );
-
-	//lineGeometry.computeLineDistances();
-	var lineMaterial = new THREE.LineBasicMaterial( { color: 0x222222 } );
-	//lineMaterial = new THREE.LineDashedMaterial( { color: 0x00cc00, dashSize: 1, gapSize: 1 } );
-	var line = new THREE.Line( lineGeometry, lineMaterial );
-*/
-	//myLine = createNewLine ();
-	
-	//scene.add(myLine);
 }
 
-var myLine;
 
-function createNewLine(startingPoint){
-    var geometry = new THREE.Geometry();
-	
-	for (var i = 0; i < MAX_LINE_POINTS; i++) {
-		geometry.vertices.push(startingPoint.clone());
-    }
-
-    myLine =  new THREE.Line(geometry,  new THREE.LineBasicMaterial( { color: 0x222222 } ));
-    // myLine.geometry.dynamic = true; // default
-    scene.add(myLine);
-}
-
-function addPoint(myPoint) {
-    myLine.geometry.vertices.push(myLine.geometry.vertices.shift()); //shift the array
-    myLine.geometry.vertices[maxLinePoints-1] = myPoint; //add the point to the end of the array
-    myLine.geometry.verticesNeedUpdate = true;
-    //render();
-}
-
-var nolineyet = true;
 function onDocumentMouseDown (event) {
 	event.preventDefault();
 	// NDC: [-1,1]x[-1,1]
@@ -117,18 +111,19 @@ function onDocumentMouseDown (event) {
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
 	if (event.button === 0) {
+		++npoints;
 		var myPoint = new THREE.Vector3(mouse.x*15, mouse.y*15,0);
 		if (nolineyet) { 
-			createNewLine (myPoint);
+			myLine = createNewLine (myPoint);
+			scene.add (myLine);
 			nolineyet = false;
 		} else {
-			myLine.geometry.vertices.push(myLine.geometry.vertices.shift()); //shift the array
-			myLine.geometry.vertices[MAX_LINE_POINTS-1] = myPoint; //add the point to the end of the array
-			myLine.geometry.verticesNeedUpdate = true;
+			addPoint (myPoint);
 		}
-	} else if (event.button === 1) {
-		console.log ("middle button");
+
+	} else if (event.button === 2) {  // right BUTTON
 		nolineyet = true;
+		// closeTheLoop();
 	}
 	
 }
@@ -144,8 +139,17 @@ function onDocumentMouseMove( event ) {
 
 function animate()
 {
+	keyboard.update();
+	
+	if ( keyboard.down("C") )   
+		clearLine(); 
+		
+	if ( keyboard.down ("R") )
+		readContour();
+	if ( keyboard.down ("S") )
+		outputContour();
+		
 	requestAnimationFrame ( animate );  
-	//controls.update();
 	render(); 
 }
 
@@ -158,7 +162,7 @@ function onWindowResize()
 
 function render()
 {
-//	console.log (lineGeometry.vertlength);
+	console.log ("Scene has: " + scene.children.length);
 	
 	renderer.render (scene, camera);
 }

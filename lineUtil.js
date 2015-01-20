@@ -6,6 +6,7 @@ function clearLine ()
 	console.log (scene.children.length);
 	scene.remove (myLine);
 	npoints = 0;
+	nolineyet = true;
 	
 	render();
 }
@@ -43,8 +44,6 @@ function tok (s, chars, rtl)
 
 function readContour ()
 {
-//	var ss = contour;
-
 	var ss = localStorage.getItem ("myContour");
 	console.log (ss);
 	
@@ -84,8 +83,17 @@ function createNewLine(startingPoint){
 
 function addPoint(myPoint) 
 {
-    myLine.geometry.vertices.push(myLine.geometry.vertices.shift()); //shift the array
-    myLine.geometry.vertices[MAX_LINE_POINTS-1] = myPoint; //add the point to the end of the array
-    myLine.geometry.verticesNeedUpdate = true;
+	myLine.geometry.vertices.shift();
+	myLine.geometry.vertices.push (myPoint);
+	
+	myLine.geometry.verticesNeedUpdate = true;
 }
+
+/*
+function closeTheLoop()
+{
+	myLine.geometry.vertices.shift();
+	myLine.geometry.vertices.push (myLine.geometry.vertices[0].clone());
+}
+*/
 
