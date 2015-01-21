@@ -44,7 +44,6 @@
 
 <script src="js/r69/three.min.js"></script>
 <script src="js/OrbitControls.js"></script>
-<script src="js/KeyboardState.js"></script>
 
 <script src="js/dat.gui.min.js"></script>
 <script src="ccd_box.js"></script>
@@ -52,7 +51,6 @@
 <script>
 var scene, renderer, camera;
 var controls;
-var keyboard = new KeyboardState();
 var arm, arm2;
 
 //var gcontrols;
@@ -89,6 +87,16 @@ function init()
 	container.appendChild (renderer.domElement); 
 	controls = new THREE.OrbitControls (camera, renderer.domElement);
 
+	var boxGeometry = new THREE.BoxGeometry (60, 10,10);
+	boxMaterial = new THREE.MeshLambertMaterial ({color: 0x00ffff, wireframe:false});
+	arm = new THREE.Mesh (boxGeometry, boxMaterial);
+	scene.add (arm);
+
+	boxGeometry = new THREE.BoxGeometry (90, 10,10);
+	boxMaterial2 = new THREE.MeshLambertMaterial ({color: 0xff00ff, wireframe:false});
+	arm2 = new THREE.Mesh (boxGeometry, boxMaterial2);
+	arm.add (arm2);
+/*	
 	// first link
 	var boxGeometry = new THREE.BoxGeometry (60, 10,10);
 	boxMaterial = new THREE.MeshLambertMaterial ({color: 0x00ffff, wireframe:false});
@@ -107,7 +115,7 @@ function init()
 	arm2.translateOnAxis (new THREE.Vector3(1,0,0), 60);
 	armMesh2.translateOnAxis (new THREE.Vector3(1,0,0), 90/2);
 	arm.add (arm2);
-
+*/
 	// end effector
 	var cyl_geom = new THREE.CylinderGeometry (10,10,6,32);
 	var cyl_mat = new THREE.MeshLambertMaterial ({color: 0xff2211});
@@ -167,7 +175,6 @@ function animate()
 
 function update()
 {
-	keyboard.update();
 	controls.update();
 
 	//theta1 = gcontrols.theta1;
@@ -196,7 +203,17 @@ function onWindowResize()
 	renderer.setSize (width, height);
 }
 
-
+function render()
+{
+	arm.rotation.y = theta1;
+	arm.position.set (30*Math.cos(theta1),0,-30*Math.sin(theta1));
+	
+	arm2.rotation.y = theta2;
+	arm2.position.set (30+45*Math.cos(theta2), 0, -45*Math.sin(theta2));
+	
+	renderer.render (scene, camera);
+}
+/*
 function render()
 {
 	arm.rotation.y = theta1;
@@ -204,6 +221,7 @@ function render()
 	
 	renderer.render (scene, camera);
 }
+*/
 </script>
 </body>
 

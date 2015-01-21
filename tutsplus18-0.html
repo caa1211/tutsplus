@@ -1,12 +1,3 @@
-<!-- Problem:
-while pulling the sliders of dat.gui, the Orbitcontrols also got affected
-how to resolve this? -->
-<!-- http://learningthreejs.com/blog/2011/08/14/dat-gui-simple-ui-for-demos/
-http://www.jaanga.com/2012/10/using-threejs-with-datgui-user.html
-http://www.smartjava.org/content/quickly-create-gui-javascript-variables-datgui
-http://davidwalsh.name/dat-gui
- -->
- 
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,6 +9,7 @@ http://davidwalsh.name/dat-gui
 		overflow: hidden;
 		font-family: Monospace;
 		font-size: 20px;
+		position: absolute;
 	}
 	#info {
 		position: absolute;
@@ -29,15 +21,6 @@ http://davidwalsh.name/dat-gui
 	}
 	a {color: #00ffff}
 	strong {color:red}
-	
-	#container{
-	    z-index: 0; left:0px; top:0px;
-	    overflow: hidden;
-	    position: absolute;
-
-	    width: 100%;
-	    height: 100%;
-    }	
 </style>
 </head>
 
@@ -45,9 +28,10 @@ http://davidwalsh.name/dat-gui
 
 <div id="container"></div>
 <div id="info">
-    webgl tutorial 18-1 <br/>
+    webgl tutorial 18 <br/>
 	Object Hierarchy  <br/><br/>
-	( Controlled by DAT.GUI ) 
+	Press Q/A for theta1 <br/>
+	Press W/S for theta2
 </div>
 
 
@@ -55,34 +39,26 @@ http://davidwalsh.name/dat-gui
 <script src="js/OrbitControls.js"></script>
 <script src="js/KeyboardState.js"></script>
 
-<script src="js/dat.gui.min.js"></script>
-  
 <script>
-////////////////////////////////////////////////////
-// global var's
+
 var scene, renderer, camera;
 var controls;
 var keyboard = new KeyboardState();
 var arm, arm2;
 
-var gcontrols;
-var theta1, theta2;
-var boxMaterial, boxMaterial2;
-var container;
-
 init();
 animate();
 
+var theta1, theta2;
 function init()
 {
-	container = document.getElementById ("container");
-	var width = container.clientWidth;
-	var height = container.clientHeight;
+	var width = window.innerWidth;
+	var height = window.innerHeight;
 
 	renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setSize (width, height);
+	document.body.appendChild (renderer.domElement);
 	renderer.setClearColor (0x888888);
-//	document.body.appendChild (renderer.domElement);
 
 	scene = new THREE.Scene();
 
@@ -91,83 +67,74 @@ function init()
 	camera.position.z = 400;
 	camera.lookAt (new THREE.Vector3(0,0,0));
 
-	container.appendChild (renderer.domElement); 
-	// I misspelled this, but no complaints, ...
-	//controls = new THREE.OrbitControls (camera, render.domElement, container);
+	// add control here (after the camera is defined)
 	controls = new THREE.OrbitControls (camera, renderer.domElement);
-	
 
 	theta1 = theta2 = 0;
 	var boxGeometry = new THREE.BoxGeometry (60, 10,10);
-	boxMaterial = new THREE.MeshLambertMaterial ({color: 0x00ffff, wireframe:true});
+	var boxMaterial = new THREE.MeshBasicMaterial ({color: 0x00ffff, wireframe:true});
 	arm = new THREE.Mesh (boxGeometry, boxMaterial);
 	scene.add (arm);
 
 	boxGeometry = new THREE.BoxGeometry (90, 10,10);
-	boxMaterial2 = new THREE.MeshLambertMaterial ({color: 0xff00ff, wireframe:true});
-	arm2 = new THREE.Mesh (boxGeometry, boxMaterial2);
-	arm.add (arm2);
+	boxMaterial = new THREE.MeshBasicMaterial ({color: 0xff00ff, wireframe:true});
+	arm2 = new THREE.Mesh (boxGeometry, boxMaterial);
+	//arm.add (arm2);
 
 	var gridXZ = new THREE.GridHelper(100, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
 	scene.add(gridXZ);
-
+/*
 	var pointLight = new THREE.PointLight (0xffffff);
 	pointLight.position.set (0,300,200);
 	scene.add (pointLight);
 
 	var ambientLight = new THREE.AmbientLight (0x111111);
 	scene.add(ambientLight);
-
-	gcontrols = new function() {
-		this.theta1 = 0.0;
-		this.theta2 = 0.0;
-		this.wireshow = true;
-	}
-	var gui = new dat.GUI();
-	gui.add (gcontrols, 'theta1', -1.5, 1.5);
-	gui.add (gcontrols, 'theta2', -1.5, 1.5);
-	gui.add (gcontrols, 'wireshow');
-	
+*/	
 	window.addEventListener ('resize', onWindowResize, false);	
 }
 
 function animate()
 {
-	requestAnimationFrame ( animate );  // timer callback
+	requestAnimationFrame ( animate );  
 	update();
-	render();  // display callback
-}
+	render();  
+} 
 
 function update()
 {
 	keyboard.update();
 	controls.update();
 
-	theta1 = gcontrols.theta1;
-	theta2 = gcontrols.theta2;
-	boxMaterial.wireframe = gcontrols.wireshow;
-	boxMaterial2.wireframe = gcontrols.wireshow;
+	if ( keyboard.down("Q"))  // yes, must use UPPER CASE
+		theta1 += 0.1;         
+	if ( keyboard.down("A"))  // yes, must use UPPER CASE
+		theta1 -= 0.1;         
+	if ( keyboard.down("W"))  // yes, must use UPPER CASE
+		theta2 += 0.1;     
+	if ( keyboard.down("S"))  // yes, must use UPPER CASE
+		theta2 -= 0.1;         
+//	console.log ("%.2f %.2f",theta1,theta2);
 }
 
 function onWindowResize()
 {
-	var width = container.clientWidth;
-	var height = container.clientHeight;
-	camera.aspect = width / height;
+	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
-	renderer.setSize (width, height);
+	renderer.setSize (window.innerWidth, window.innerHeight);
 }
-
 
 function render()
 {
-	arm.rotation.y = theta1;
+	// position/rotation: order independendt
 	arm.position.set (30*Math.cos(theta1),0,-30*Math.sin(theta1));
+	//arm.position.set (30,0,0);
+	arm.rotation.y = theta1;
 	
 	arm2.rotation.y = theta2;
 	arm2.position.set (30+45*Math.cos(theta2), 0, -45*Math.sin(theta2));
-	
+
 	renderer.render (scene, camera);
 }
 </script>
