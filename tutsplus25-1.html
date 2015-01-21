@@ -182,7 +182,7 @@ function simulateClick(element){
 
 //Use another button to trigger upload
 $("#uploadBtn").click(function(){
-	$("#fileSel").click();//Work in user's click
+	simulateClick(fileSelect);//Work in user's click
 });
 
 function animate()
@@ -193,7 +193,7 @@ function animate()
 		clearLine(); 
 		
 	if ( keyboard.down ("R") ) {
-		$("#fileSel").click(); //don't work in user's keyboard down ?????
+		simulateClick(fileSelect); //don't work in user's keyboard down ?????
 	}
 
 	if ( keyboard.down ("S") )
