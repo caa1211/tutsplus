@@ -28,7 +28,7 @@
 
 <div id="container"></div>
 <div id="info">
-    webgl tutorial 18 <br/>
+    webgl tutorial 18-0 <br/>
 	Object Hierarchy  <br/><br/>
 	Press Q/A for theta1 <br/>
 	Press W/S for theta2
@@ -79,7 +79,7 @@ function init()
 	boxGeometry = new THREE.BoxGeometry (90, 10,10);
 	boxMaterial = new THREE.MeshBasicMaterial ({color: 0xff00ff, wireframe:true});
 	arm2 = new THREE.Mesh (boxGeometry, boxMaterial);
-	//arm.add (arm2);
+	arm.add (arm2);
 
 	var gridXZ = new THREE.GridHelper(100, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
@@ -129,7 +129,6 @@ function render()
 {
 	// position/rotation: order independendt
 	arm.position.set (30*Math.cos(theta1),0,-30*Math.sin(theta1));
-	//arm.position.set (30,0,0);
 	arm.rotation.y = theta1;
 	
 	arm2.rotation.y = theta2;
