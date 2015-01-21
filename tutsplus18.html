@@ -40,8 +40,7 @@
 <script src="js/KeyboardState.js"></script>
 
 <script>
-////////////////////////////////////////////////////
-// global var's
+
 var scene, renderer, camera;
 var controls;
 var keyboard = new KeyboardState();
@@ -58,8 +57,8 @@ function init()
 
 	renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setSize (width, height);
-	renderer.setClearColor (0x888888);
 	document.body.appendChild (renderer.domElement);
+	renderer.setClearColor (0x888888);
 
 	scene = new THREE.Scene();
 
@@ -85,22 +84,22 @@ function init()
 	var gridXZ = new THREE.GridHelper(100, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
 	scene.add(gridXZ);
-
+/*
 	var pointLight = new THREE.PointLight (0xffffff);
 	pointLight.position.set (0,300,200);
 	scene.add (pointLight);
 
 	var ambientLight = new THREE.AmbientLight (0x111111);
 	scene.add(ambientLight);
-	
+*/	
 	window.addEventListener ('resize', onWindowResize, false);	
 }
 
 function animate()
 {
-	requestAnimationFrame ( animate );  // timer callback
+	requestAnimationFrame ( animate );  
 	update();
-	render();  // display callback
+	render();  
 } 
 
 function update()

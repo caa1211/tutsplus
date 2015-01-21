@@ -131,15 +131,15 @@ function onWindowResize()
 function createMesh(geom, imageFile, normal) {
 
 	if (normal) {
-/*
+
 	var t = THREE.ImageUtils.loadTexture(imageFile);
 		var m = THREE.ImageUtils.loadTexture(normal);
 		var mat2 = new THREE.MeshPhongMaterial({
 			map: t,
 			normalMap: m
 		});
-*/		
-		mat2 = createNormalmapShaderMaterial (imageFile, normal);
+		
+		//mat2 = createNormalmapShaderMaterial (imageFile, normal);
 		var mesh = new THREE.Mesh(geom, mat2);
 		return mesh;
 	} else {
@@ -154,6 +154,7 @@ function createMesh(geom, imageFile, normal) {
 	return mesh;
 }
 
+// not used ....
 function createNormalmapShaderMaterial(diffuseMap, normalMap) 
 {
 debugger;	
