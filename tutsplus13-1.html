@@ -94,6 +94,7 @@ function init()
 	
 	renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setSize (width, height);
+	renderer.setClearColor (0x888888);
 	document.body.appendChild (renderer.domElement);
 
 	scene = new THREE.Scene();
@@ -120,12 +121,7 @@ function init()
 	scene.add (right_box);
 
 	// add control here (after the camera is defined)
-	controls = new THREE.OrbitControls (camera, render.domElement);
-
-	var skyboxGeometry = new THREE.BoxGeometry (10000,10000,10000);
-	var skyboxMaterial = new THREE.MeshLambertMaterial ({color: 0x222222, side:THREE.BackSide});
-	var skybox = new THREE.Mesh (skyboxGeometry, skyboxMaterial);
-	scene.add (skybox);
+	controls = new THREE.OrbitControls (camera, renderer.domElement);
 
 	var gridXZ = new THREE.GridHelper(100, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
@@ -167,7 +163,7 @@ function onDocumentMouseDown( event ) {
 	}
 	
 }
-s
+
 function animate()
 {
 	if (spin_l) {
