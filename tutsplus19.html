@@ -27,11 +27,9 @@
 <body> 
 
 <script src="js/r69/three.min.js"></script>
-<script src="js/TrackballControls.js"></script>
+<script src="js/OrbitControls.js"></script>
 
 <script>
-////////////////////////////////////////////////////
-// global var's
 var scene, renderer, camera;
 var controls;
 
@@ -96,7 +94,8 @@ function init()
 	objects.push (right_box);
 
 	// add control here (after the camera is defined)
-	//controls = new THREE.OrbitControls (camera, renderer.domElement);
+	controls = new THREE.OrbitControls (camera, renderer.domElement);
+/*
 	controls = new THREE.TrackballControls( camera );
 	controls.rotateSpeed = 1.0;
 	controls.zoomSpeed = 1.2;
@@ -105,7 +104,7 @@ function init()
 	controls.noPan = false;
 	controls.staticMoving = true;
 	controls.dynamicDampingFactor = 0.3;
-
+*/
 	plane = new THREE.Mesh(
 		new THREE.PlaneBufferGeometry( 200, 200, 8, 8 ),
 		new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.25, transparent: true } )

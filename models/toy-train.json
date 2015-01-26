@@ -129319,16 +129319,16 @@
 			"normalMap": null
 		},
 		{
-			"uuid": "152257B2-7043-4C76-9B4E-D5423F46879F",
+			"uuid": "CC46FD5B-E6EC-44D8-B689-561A5785B417",
 			"type": "MeshBasicMaterial",
-			"color": 7958834,
+			"color": 9915587,
 			"opacity": 1,
 			"transparent": false,
 			"wireframe": false
 		}
 	],
 	"object": {
-		"uuid": "7E8F0FC9-700B-4209-A28B-9F5CB3BE1CC3",
+		"uuid": "B541120B-4500-417F-8E1B-D919122AEF09",
 		"type": "Scene",
 		"matrix": [
 			1,
@@ -129544,7 +129544,7 @@
 				"visible": false,
 				"type": "Mesh",
 				"geometry": "94f32d4a-c476-416e-ae64-0ffca830a9c5",
-				"material": "152257B2-7043-4C76-9B4E-D5423F46879F",
+				"material": "CC46FD5B-E6EC-44D8-B689-561A5785B417",
 				"castShadow": false,
 				"receiveShadow": false,
 				"matrix": [

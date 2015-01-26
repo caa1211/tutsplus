@@ -63,9 +63,9 @@ function init()
 	scene.add (pointLight);
 
 	var jsonLoader = new THREE.JSONLoader();
-	jsonLoader.load ("models/android.js", addModelToScene);
+	//jsonLoader.load ("models/android.js", addModelToScene);
 	//jsonLoader.load ("models/teapot.js", addModelToScene);
-	//jsonLoader.load ("models/toy-train.json", addModelToScene);  // bugging input
+	jsonLoader.load ("models/toy-train.json", addModelToScene);  // bugging input
 	//jsonLoader.load ("models/stanford-dragon.json", addModelToScene);
 	//jsonLoader.load ("models/lee-perry-smith-head-scan.json", addModelToScene);
 	
