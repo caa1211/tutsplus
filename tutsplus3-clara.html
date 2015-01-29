@@ -22,13 +22,17 @@ var clock = new THREE.Clock();
 var scene, renderer, camera;
 var cube;
 var controls, keyboard = new KeyboardState();
-var jsonModel;
+var android;
 
 var angle = 0;
 var turn = 1;
 
 init();
 animate();
+
+var toytrain;
+var bumpMap;
+
 
 function init()
 {
@@ -42,12 +46,17 @@ function init()
 	scene = new THREE.Scene();
 
 	camera = new THREE.PerspectiveCamera (45, width/height, 0.1, 10000);
-	camera.position.y = 32;
-	camera.position.z = 80;
+	camera.position.y = 160;
+	camera.position.z = 400;
 	camera.lookAt (new THREE.Vector3(0,0,0));
 
 	// add control here (after the camera is defined)
 	controls = new THREE.OrbitControls (camera, render.domElement);
+
+	var skyboxGeometry = new THREE.BoxGeometry (1000,1000,1000);
+	var skyboxMaterial = new THREE.MeshBasicMaterial ({color: 0x222222, side:THREE.BackSide});
+	var skybox = new THREE.Mesh (skyboxGeometry, skyboxMaterial);
+	scene.add (skybox);
 
 	var gridXZ = new THREE.GridHelper(100, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
@@ -57,18 +66,22 @@ function init()
 	pointLight.position.set (0,300,200);
 	scene.add (pointLight);
 
+var loader = new THREE.ObjectLoader();
+loader.load("models/toy-train.json",function ( obj ) {
+ toytrain = obj;
+  obj.scale.set (10,10,10);
+  scene.add( obj );
+});
+
+	bumpMap = THREE.ImageUtils.loadTexture("images/wood_oak_002_bump.jpg");
+/*	
 	var jsonLoader = new THREE.JSONLoader();
-	jsonLoader.load ("models/teapot.json", addModelToScene);				
-	
-	//jsonLoader.load ("models/android.json", addModelToScene);
-	//jsonLoader.load ("models/stork.json", addModelToScene);
-	//jsonLoader.load ("models/tree.json", addModelToScene);
-	
-	// these do not work .... (incompatible format)
-	//jsonLoader.load ("models/toy-train.json", addModelToScene);  // bugging input
-	// jsonLoader.load ("models/stanford-dragon.json", addModelToScene); xxx
-	// jsonLoader.load ("models/lee-perry-smith-head-scan.json", addModelToScene); xxx
-	
+	//jsonLoader.load ("models/android.js", addModelToScene);
+	//jsonLoader.load ("models/teapot.js", addModelToScene);
+	jsonLoader.load ("models/toy-train.json", addModelToScene);  // bugging input
+	//jsonLoader.load ("models/stanford-dragon.json", addModelToScene);
+	//jsonLoader.load ("models/lee-perry-smith-head-scan.json", addModelToScene);
+*/	
 	var ambientLight = new THREE.AmbientLight (0x111111);
 	scene.add(ambientLight);
 }
@@ -76,9 +89,10 @@ function init()
 function addModelToScene ( geometry, materials )
 {
 	var material = new THREE.MeshFaceMaterial (materials);
-	jsonModel = new THREE.Mesh (geometry, material);
-	jsonModel.scale.set (4,4,4);
-	scene.add (jsonModel);
+	android = new THREE.Mesh (geometry, material);
+	android.scale.set (4,4,4);
+	android.position.set (50,0,0);
+	scene.add (android);
 }
 
 function animate()
@@ -88,9 +102,9 @@ function animate()
 	var x = 50*Math.cos(angle);
 	var z = 50*Math.sin(angle);
 
-	if (jsonModel !== undefined && turn) { 
-		jsonModel.position.set (x,0,z);
-		jsonModel.rotation.y -= 5*dt;
+	if (android != undefined && turn) { 
+		android.position.set (x,0,z);
+		android.rotation.y -= 5*dt;
 		angle -= dt;
 	}
 	
@@ -109,6 +123,22 @@ function update()
 
 function render()
 {
+	
+	if (toytrain !== undefined ) {
+		for (var i = 0; i < toytrain.children.length; i++) {
+			if (toytrain.children[i] instanceof THREE.Mesh) {
+			toytrain.children[i].material.bumpMap = bumpMap;
+			toytrain.children[i].material.bumpScale = 0.2;
+			}
+		}
+/*			
+		for (var i = 0; i < 8; i++) {
+			toytrain.children[i].material.bumpMap = bumpMap;
+			toytrain.children[i].material.bumpScale = 0.2;
+		}
+*/
+	}
+
 	renderer.render (scene, camera);
 }
 
