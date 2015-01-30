@@ -31,17 +31,23 @@
 
 <body> 
 <div id="info">
-webgl tutorial 25: Sketcher <br/>
+webgl tutorial 25-1: Sketcher <br/>
 Left button to add; Right button to terminate <br/>
-(demo: one open contour only)
 </div>
 <div id="info2">
-Hit 'C' to clear; Hit 'S' to save; Hit 'R' to read <br/>
+Hit 'C' to clear; Hit 'S' to save<br/>
 </div>
+<input type="file" style="position:absolute;bottom: 8px;left:48%; z-index: 999;" id="fileSel"/>
+<!--button id="uploadBtn" style="position:absolute;bottom: 8px;left:48%; z-index: 999;">Custom Upload</button-->
 
+<!--script src="https://code.jquery.com/jquery-2.1.3.min.js"></script-->
 <script src="js/r69/three.min.js"></script>
 <script src="js/KeyboardState.js"></script>
 <script src="lineUtil.js"></script>
+
+<!--script src="http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js"></script-->
+<!--script src="https://github.com/eligrey/Blob.js"></script-->
+<script src="js/FileSaver.js"></script>
 
 <script> 
   document.oncontextmenu=function(){return false;} 
@@ -54,24 +60,15 @@ var plane, cyl;
 var mouse = new THREE.Vector2();
 var keyboard = new KeyboardState();
 
+var fileSelect = document.getElementById("fileSel");
+fileSelect.addEventListener("change", doOpen, false);
+
 var myLine;
 
 var nolineyet = true;
-//var contour = "3 1 1 2 3 3 0";
 
 init();
 animate();
-
-
-
-// this little function below turns off the default "right-button" menu in 
-// canvas window
-// http://www.dotblogs.com.tw/nethawk/archive/2010/07/13/16520.aspx
-//document.oncontextmenu = function(e){
-   
-//        console.log("my function");
-//        return false;  
-//};
 
 function init()
 {
@@ -98,10 +95,8 @@ function init()
 	gridXZ.rotation.x = Math.PI/2;
 	scene.add(gridXZ);
 
-	//readContour();
-	
 	window.addEventListener ('resize', onWindowResize, false);	
-//	window.addEventListener( 'mousemove', onDocumentMouseMove, false );
+	//window.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	window.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
 }
@@ -142,6 +137,21 @@ function onDocumentMouseMove( event ) {
 	//console.log (mouse.x + ", " + mouse.y);
 }
 
+
+function doOpen(evt) {
+   var files = evt.target.files;
+   var reader = new FileReader();
+
+   reader.onload = function(){
+		readContour (this.result);
+		//alert(this.result);
+    };
+	
+    reader.readAsText(files[0]);
+
+	window.removeEventListener( 'mousedown', onDocumentMouseDown);
+}
+
 function animate()
 {
 	keyboard.update();
@@ -150,19 +160,15 @@ function animate()
 		clearLine(); 
 		window.addEventListener( 'mousedown', onDocumentMouseDown, false );
 	}
-		
-	if ( keyboard.down ("R") ) { 
-		var ss = localStorage.getItem ("myContour");	
-		readContour(ss);
-		// one line exists
-		window.removeEventListener( 'mousedown', onDocumentMouseDown);
-	}
-	
+
 	if ( keyboard.down ("S") ) {
-		var string = outputContour();
-		localStorage.setItem ("myContour", string);
+		var filename = prompt ("File? ", "data.txt");
+
+		var string = outputContour ();
+		var blob = new Blob([string], {type: "text/plain;charset=utf-8"});
+		saveAs(blob, filename);
 	}
-	
+
 	requestAnimationFrame ( animate );  
 	render(); 
 }

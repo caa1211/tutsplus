@@ -25,8 +25,7 @@ function outputContour ()
 	}
 	
 //	console.log (string);
-	
-	localStorage.setItem ("myContour", string);
+	return string;
 }
 
 // single-space-separated data
@@ -57,9 +56,8 @@ function tok (s, chars, rtl)
 	return s;
 }
 
-function readContour ()
+function readContour (ss)
 {
-	var ss = localStorage.getItem ("myContour");
 	console.log (ss);
 	
 	// s1 = tok (ss, separator) ... returns the 

@@ -27,12 +27,9 @@
 <body> 
 
 <script src="js/r69/three.min.js"></script>
-<script src="js/TrackballControls.js"></script>
 <script src="js/OrbitControls.js"></script>
 
 <script>
-////////////////////////////////////////////////////
-// global var's
 var scene, renderer, camera;
 var controls;
 
@@ -197,9 +194,9 @@ function onDocumentMouseUp( event ) {
 
 function animate()
 {
-	requestAnimationFrame ( animate );  // timer callback
+	requestAnimationFrame ( animate );  
 	update();
-	render();  // display callback
+	render();  
 }
 
 function update()

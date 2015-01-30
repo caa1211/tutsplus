@@ -35,25 +35,26 @@ webgl tutorial 25-1: Sketcher <br/>
 Left button to add; Right button to terminate <br/>
 </div>
 <div id="info2">
-Hit 'C' to clear; Hit 'S' to save; Hit 'R' to read <br/>
+Hit 'C' to clear; Hit 'S' to save<br/>
 </div>
 <input type="file" id="fileSel" style="display: none;"/>
-<button id="uploadBtn" style="position:absolute; left: 100px; bottom:30px; z-index: 999;">Custom Upload</button>
+<button id="uploadBtn" style="position:absolute;bottom: 8px;left:48%; z-index: 999;">Custom Upload</button>
 
 <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
 <script src="js/r69/three.min.js"></script>
 <script src="js/KeyboardState.js"></script>
 <script src="lineUtil.js"></script>
 
-<!--script src="https://github.com/eligrey/Blob.js"></script-->
 <!--script src="http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js"></script-->
+<!--script src="https://github.com/eligrey/Blob.js"></script-->
 <script src="js/FileSaver.js"></script>
+
+<script> 
+  document.oncontextmenu=function(){return false;} 
+</script>
 
 
 <script>
-// q: to use right button?
-// to use file for i/o
-
 var scene, renderer, camera;
 var plane, cyl;
 var mouse = new THREE.Vector2();
@@ -64,21 +65,9 @@ fileSelect.addEventListener("change", doOpen, false);
 var myLine;
 
 var nolineyet = true;
-//var contour = "3 1 1 2 3 3 0";
 
 init();
 animate();
-
-
-
-// this little function turns off the default "right-button" menu in 
-// canvas window
-document.oncontextmenu = function(e){
-   
-//        console.log("my function");
-        return false;  
-};
-
 
 function init()
 {
@@ -105,10 +94,8 @@ function init()
 	gridXZ.rotation.x = Math.PI/2;
 	scene.add(gridXZ);
 
-	//readContour();
-	
 	window.addEventListener ('resize', onWindowResize, false);	
-	window.addEventListener( 'mousemove', onDocumentMouseMove, false );
+	//window.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	window.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
 }
@@ -120,7 +107,7 @@ function onDocumentMouseDown (event) {
 	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-	if (event.button === 0) {
+	if (event.button === 0) {  // left button
 		++npoints;
 		var myPoint = new THREE.Vector3(mouse.x*15, mouse.y*15,0);
 		if (nolineyet) { 
@@ -133,7 +120,9 @@ function onDocumentMouseDown (event) {
 
 	} else if (event.button === 2) {  // right BUTTON
 		nolineyet = true;
-		// closeTheLoop();
+
+		// once line is terminated, do not draw further
+		window.removeEventListener( 'mousedown', onDocumentMouseDown);
 	}
 	
 }
@@ -147,26 +136,28 @@ function onDocumentMouseMove( event ) {
 	//console.log (mouse.x + ", " + mouse.y);
 }
 
+/*
 function trySaveAs()
 {
 	var filename = prompt ("File? ", "data.txt");
 
-	var blob = new Blob(["3 1 1 2 2 3 0"], {type: "text/plain;charset=utf-8"});
+	var string = outputContour ();
+	var blob = new Blob([string], {type: "text/plain;charset=utf-8"});
 	saveAs(blob, filename);
 }
-
+*/
 function doOpen(evt) {
    var files = evt.target.files;
    var reader = new FileReader();
-    reader.onload = function(){
 
-alert(this.result);
-          //showout.value = this.result;
-
-//        //String to JSON
-//        var obj = JSON.parse(this.result);
+   reader.onload = function(){
+		readContour (this.result);
+		//alert(this.result);
     };
+	
     reader.readAsText(files[0]);
+
+	window.removeEventListener( 'mousedown', onDocumentMouseDown);
 }
 
 function simulateClick(element){
@@ -189,17 +180,24 @@ function animate()
 {
 	keyboard.update();
 	
-	if ( keyboard.down("C") )   
+	if ( keyboard.down("C") )  {
 		clearLine(); 
-		
+		window.addEventListener( 'mousedown', onDocumentMouseDown, false );
+	}
+/*	
 	if ( keyboard.down ("R") ) {
 		simulateClick(fileSelect); //don't work in user's keyboard down ?????
+//		window.removeEventListener( 'mousedown', onDocumentMouseDown);
+	}
+*/
+	if ( keyboard.down ("S") ) {
+		var filename = prompt ("File? ", "data.txt");
+
+		var string = outputContour ();
+		var blob = new Blob([string], {type: "text/plain;charset=utf-8"});
+		saveAs(blob, filename);
 	}
 
-	if ( keyboard.down ("S") )
-		//outputContour();
-		trySaveAs();
-		
 	requestAnimationFrame ( animate );  
 	render(); 
 }
