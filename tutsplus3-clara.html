@@ -48,7 +48,7 @@ function init()
 	camera.lookAt (new THREE.Vector3(0,0,0));
 
 	// add control here (after the camera is defined)
-	controls = new THREE.OrbitControls (camera, render.domElement);
+	controls = new THREE.OrbitControls (camera, renderer.domElement);
 
 	var gridXZ = new THREE.GridHelper(100, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
@@ -62,13 +62,14 @@ function init()
 	bumpMap = THREE.ImageUtils.loadTexture("images/wood_oak_002_bump.jpg");
 	var loader = new THREE.ObjectLoader();
 	loader.load("models/toy-train.json",function ( obj ) {
-		toytrain = obj;
-		for (var i = 0; i < toytrain.children.length; i++) {
-			if (toytrain.children[i] instanceof THREE.Mesh) {
-				toytrain.children[i].material.bumpMap = bumpMap;
-				toytrain.children[i].material.bumpScale = 0.2;
-			}
-		}
+		obj.traverse (function (mesh)
+			{
+				if (mesh instanceof THREE.Mesh) {
+					mesh.material.bumpMap = bumpMap;
+					mesh.material.bumpScale = 0.2;
+				}
+			});
+		
 		obj.scale.set (10,10,10);
 		scene.add( obj );
 	});
