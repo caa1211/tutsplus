@@ -77,7 +77,7 @@ function animate()
 	var z = 50*Math.sin(angle);
 
 	//if (turn) {  // this is error-prone
-	if (toycar != undefined && turn) { 
+	if (toycar !== undefined && turn) { 
 		toycar.scale.set (102,102,102);
 		//toycar.position.set (x,0,z);
 		//toycar.rotation.y = -(angle+Math.PI);
