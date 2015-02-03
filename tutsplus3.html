@@ -22,7 +22,7 @@ var clock = new THREE.Clock();
 var scene, renderer, camera;
 var cube;
 var controls, keyboard = new KeyboardState();
-var android;
+var jsonModel;
 
 var angle = 0;
 var turn = 1;
@@ -42,17 +42,12 @@ function init()
 	scene = new THREE.Scene();
 
 	camera = new THREE.PerspectiveCamera (45, width/height, 0.1, 10000);
-	camera.position.y = 160;
-	camera.position.z = 400;
+	camera.position.y = 32;
+	camera.position.z = 80;
 	camera.lookAt (new THREE.Vector3(0,0,0));
 
 	// add control here (after the camera is defined)
 	controls = new THREE.OrbitControls (camera, render.domElement);
-
-	var skyboxGeometry = new THREE.BoxGeometry (1000,1000,1000);
-	var skyboxMaterial = new THREE.MeshBasicMaterial ({color: 0x222222, side:THREE.BackSide});
-	var skybox = new THREE.Mesh (skyboxGeometry, skyboxMaterial);
-	scene.add (skybox);
 
 	var gridXZ = new THREE.GridHelper(100, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
@@ -63,11 +58,16 @@ function init()
 	scene.add (pointLight);
 
 	var jsonLoader = new THREE.JSONLoader();
-	jsonLoader.load ("models/android.js", addModelToScene);
-	//jsonLoader.load ("models/teapot.js", addModelToScene);
+	jsonLoader.load ("models/teapot.json", addModelToScene);				
+	
+	//jsonLoader.load ("models/android.json", addModelToScene);
+	//jsonLoader.load ("models/stork.json", addModelToScene);
+	//jsonLoader.load ("models/tree.json", addModelToScene);
+	
+	// these do not work .... (incompatible format)
 	//jsonLoader.load ("models/toy-train.json", addModelToScene);  // bugging input
-	//jsonLoader.load ("models/stanford-dragon.json", addModelToScene);
-	//jsonLoader.load ("models/lee-perry-smith-head-scan.json", addModelToScene);
+	// jsonLoader.load ("models/stanford-dragon.json", addModelToScene); xxx
+	// jsonLoader.load ("models/lee-perry-smith-head-scan.json", addModelToScene); xxx
 	
 	var ambientLight = new THREE.AmbientLight (0x111111);
 	scene.add(ambientLight);
@@ -76,22 +76,21 @@ function init()
 function addModelToScene ( geometry, materials )
 {
 	var material = new THREE.MeshFaceMaterial (materials);
-	android = new THREE.Mesh (geometry, material);
-	android.scale.set (4,4,4);
-	android.position.set (50,0,0);
-	scene.add (android);
+	jsonModel = new THREE.Mesh (geometry, material);
+	jsonModel.scale.set (4,4,4);
+	scene.add (jsonModel);
 }
 
 function animate()
 {
 	var dt = clock.getDelta();
 
-	var x = 50*Math.cos(angle);
-	var z = 50*Math.sin(angle);
+	var x = 30*Math.cos(angle);
+	var z = 30*Math.sin(angle);
 
-	if (android != undefined && turn) { 
-		android.position.set (x,0,z);
-		android.rotation.y -= 5*dt;
+	if (jsonModel !== undefined && turn) { 
+		jsonModel.position.set (x,0,z);
+		jsonModel.rotation.y -= 5*dt;
 		angle -= dt;
 	}
 	

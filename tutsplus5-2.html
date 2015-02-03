@@ -38,7 +38,6 @@
 <script src="js/three.min.js"></script>
 <script src="js/OrbitControls.js"></script>
 <script src="js/KeyboardState.js"></script>
-
 <script src="models/boat_0.js"></script>
 <script src="models/boat_1.js"></script>
 <script src="models/boat_2.js"></script>
@@ -48,6 +47,7 @@
 <script src="models/boat_6.js"></script>
 <script src="models/boat_7.js"></script>
 <script src="models/boat_8.js"></script>
+<script src="boat.js"></script>
 
 <script>
 
@@ -55,31 +55,10 @@ var clock = new THREE.Clock();
 var scene, renderer, camera;
 var controls, keyboard = new KeyboardState();
 
-// structure of the boat object
-var boat = {
-	group: new THREE.Object3D(),
-	pos: new THREE.Vector3(),
-	vel: new THREE.Vector3(),
-	force: new THREE.Vector3(),
-	power: 0,
-	theta: 0
-};
+var myboat, myboat2;
 
 init();
 animate();
-
-function loadBoat()
-{
-	 create_geometry_0(boat.group);
-	 create_geometry_1(boat.group);
-	 create_geometry_2(boat.group);
-	 create_geometry_3(boat.group);
-	 create_geometry_4(boat.group);
-	 create_geometry_5(boat.group);
-	 create_geometry_6(boat.group);
-	 create_geometry_7(boat.group);
-	 create_geometry_8(boat.group);
-}
 
 function init()
 {
@@ -99,8 +78,9 @@ function init()
 	camera.lookAt (new THREE.Vector3(0,0,0));
 	scene.add (camera);
 
-	loadBoat();
-	scene.add (boat.group);
+	myboat = new Boat(scene, new THREE.Vector3 (50,0,35), 1.4);
+
+	myboat2 = new Boat(scene);
 	
 	// add control here (after the camera is defined)
 	controls = new THREE.OrbitControls (camera, renderer.domElement);
@@ -129,24 +109,9 @@ function onWindowResize()
 function animate()
 {
 	var dt = clock.getDelta();
-	
-	// euler's method
-	var tmp = boat.vel.clone();
-	tmp.multiplyScalar (dt);  // vel*dt
-	boat.pos.add (tmp);  // pos = pos + vel*dt;
-	 
-	tmp = boat.force.clone();
-	tmp.multiplyScalar (dt);  // force*dt
-	boat.vel.add (tmp);  // vel = vel + force*dt
-	
-	if (boat.vel.length() > 0) {
-		boat.theta = Math.atan2 (-boat.vel.z, boat.vel.x)
-	}
 
-	boat.group.scale.set (0.3,0.3,0.3);
-	boat.group.position.set (boat.pos.x, boat.pos.y+3, boat.pos.z);
-	boat.group.rotation.x = -Math.PI/2;
-	boat.group.rotation.z = boat.theta+Math.PI;
+	myboat.step (dt);
+	myboat2.step (dt);
 	
 	requestAnimationFrame ( animate );  
 	update();
@@ -164,34 +129,26 @@ function update()
 {
 	controls.update();
 	keyboard.update();
+
+	var power = myboat.power;
 	if (keyboard.pressed("home"))  
-		boat.power = 5.0;               
+		power = 5.0;               
 	if (keyboard.pressed("space"))  
-		boat.power = 0;               
+		power = 0;               
 	if (keyboard.pressed("up"))  
-		boat.power *= 1.2;        
+		power *= 1.2;        
 	if (keyboard.pressed("down"))  
-		boat.power /= 1.2;    
+		power /= 1.2;    
+	power = myclamp (power, 0, 40.0);		
 	
-	var angle_thrust = boat.theta;
+	var angle1 = myboat.theta, angle2 = myboat2.theta;
 	if (keyboard.pressed("left"))  
-		angle_thrust += 0.3;        
+		angle1 += 0.3, angle2 += 0.3;        
 	if (keyboard.pressed("right"))  
-		angle_thrust -= 0.3;       
+		angle1 -= 0.3, angle2 -= 0.3; 
 	
-	boat.power = myclamp (boat.power, 0, 40.0);		
-
-	// force: vel-aligned thrust
-	var force_gas = new THREE.Vector3(1,0,0);
-	force_gas.applyAxisAngle (new THREE.Vector3(0,1,0), angle_thrust);
-	force_gas.multiplyScalar (boat.power);
-
-	// force: vel-against damping
-	force_damp = boat.vel.clone();
-	force_damp.multiplyScalar (-2);
-
-	boat.force.addVectors (force_gas, force_damp);
-	
+	myboat.accumForce (power, angle1);
+	myboat2.accumForce (power, angle2);
 }
 
 function render()

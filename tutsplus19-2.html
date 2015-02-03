@@ -27,12 +27,9 @@
 <body> 
 
 <script src="js/r69/three.min.js"></script>
-<script src="js/TrackballControls.js"></script>
 <script src="js/OrbitControls.js"></script>
 
 <script>
-////////////////////////////////////////////////////
-// global var's
 var scene, renderer, camera;
 var controls;
 
@@ -97,7 +94,7 @@ function init()
 	objects.push (right_cyl);
 
 	// add control here (after the camera is defined)
-	controls = new THREE.OrbitControls (camera, render.domElement);
+	controls = new THREE.OrbitControls (camera, renderer.domElement);
 /*	
 	controls = new THREE.TrackballControls( camera );
 	controls.rotateSpeed = 1.0;
@@ -197,9 +194,9 @@ function onDocumentMouseUp( event ) {
 
 function animate()
 {
-	requestAnimationFrame ( animate );  // timer callback
+	requestAnimationFrame ( animate );  
 	update();
-	render();  // display callback
+	render();  
 }
 
 function update()

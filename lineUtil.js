@@ -25,8 +25,22 @@ function outputContour ()
 	}
 	
 //	console.log (string);
+	return string;
+}
+
+// single-space-separated data
+function mytok (s, option)
+{
+	var separator = " ";
+	var n = s.indexOf (separator);
+	var read = s.substr (0,n);
 	
-	localStorage.setItem ("myContour", string);
+    if (option === 'cut')
+        return read;
+    else {
+	    s = s.substr (++n);  // the rest
+    	return s;
+    }
 }
 
 function tok (s, chars, rtl) 
@@ -42,31 +56,56 @@ function tok (s, chars, rtl)
 	return s;
 }
 
-function readContour ()
+function readContour (ss)
 {
-	var ss = localStorage.getItem ("myContour");
 	console.log (ss);
 	
+	// s1 = tok (ss, separator) ... returns the 
+	//	var n = tok (ss, " ");	//ss = tok (ss, " ", true);
+
+	var n = mytok (ss, "cut");
+	ss = mytok (ss, "rest");
 	
-	var n = tok (ss, " ");
-
-	ss = tok (ss, " ", true);
-
 	var x, y;
-	x = tok (ss, " "); ss = tok (ss, " ", true);
-	y = tok (ss, " "); ss = tok (ss, " ", true);
-//	console.log (x+", " +y);
+	//x = tok (ss, " "); ss = tok (ss, " ", true);
+	//y = tok (ss, " "); ss = tok (ss, " ", true);
+	x = mytok (ss,"cut"); ss = mytok (ss,"rest");
+	y = mytok (ss,"cut"); ss = mytok (ss,"rest");
 	
-	newLine = createNewLine (new THREE.Vector3 (x,y,0));
-	scene.add (newLine);
+	//	console.log (x+", " +y);
+	
+	myLine = createNewLine (new THREE.Vector3 (x,y,0));
+	scene.add (myLine);
 	
 	for (i = 1; i < n; i++) {
-		x = tok (ss, " "); ss = tok (ss, " ", true);
-		y = tok (ss, " "); ss = tok (ss, " ", true);
+//		x = tok (ss, " "); ss = tok (ss, " ", true);
+//		y = tok (ss, " "); ss = tok (ss, " ", true);
+	x = mytok (ss,"cut"); ss = mytok (ss,"rest");
+	y = mytok (ss,"cut"); ss = mytok (ss,"rest");
 	
 		addPoint (new THREE.Vector3 (x,y,0));
 	}
 }
+
+/* this wont work...
+function createNewLine (startingPoint) 
+{
+    var geometry = new THREE.Geometry();
+	
+	geometry.vertices.push(startingPoint.clone());
+    myLine =  new THREE.Line(geometry,  new THREE.LineBasicMaterial( { color: 0x222222 } ));
+
+    return myLine;
+}
+
+function addPoint (myPoint)
+{
+	myLine.geometry.vertices.push (myPoint);
+	myLine.geometry.verticesNeedUpdate = true;
+	
+	console.log ("points: ", myLine.geometry.vertices.length);
+}
+*/
 
 function createNewLine(startingPoint){
     var geometry = new THREE.Geometry();
@@ -88,6 +127,7 @@ function addPoint(myPoint)
 	
 	myLine.geometry.verticesNeedUpdate = true;
 }
+
 
 /*
 function closeTheLoop()

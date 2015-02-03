@@ -3,7 +3,7 @@ var REACH = 50;
 var ARRIVAL_R = 30;
 
 var Obstacle = function (center,size) {
-	this.center = center;  // pointer assignment
+	this.center = center.clone();  
 	this.mesh = new THREE.Mesh (new THREE.CylinderGeometry(size,size,1,20),
 			new THREE.MeshBasicMaterial());
 	this.mesh.position.copy (center);
@@ -11,12 +11,10 @@ var Obstacle = function (center,size) {
 };
 
 var Agent = function (pos, vel) {
-	this.pos = new THREE.Vector3();
-	this.vel = new THREE.Vector3();
+	this.pos = pos.clone();
+	this.vel = vel.clone();
 	this.force = new THREE.Vector3();
 	this.target = new THREE.Vector3();
-	this.pos.copy (pos);
-	this.vel.copy (vel);
 	this.size = 3;  // physical size of the character
 	this.mesh = new THREE.Mesh (new THREE.CylinderGeometry(3,3,1,20),
 			new THREE.MeshBasicMaterial({color:0xff0000}));

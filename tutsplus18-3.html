@@ -44,24 +44,21 @@
 
 <script src="js/r69/three.min.js"></script>
 <script src="js/OrbitControls.js"></script>
-<script src="js/KeyboardState.js"></script>
 
 <script src="js/dat.gui.min.js"></script>
-<script src="ccd_box.js"></script>
+<script src="ccd_box-0.js"></script>
  
 <script>
 var scene, renderer, camera;
 var controls;
-var keyboard = new KeyboardState();
 var arm, arm2;
 
-//var gcontrols;
 var theta1 = 0, theta2 = 0;
 var boxMaterial, boxMaterial2;
 var container;
 var clock = new THREE.Clock();
 
-	var mouse = new THREE.Vector2();
+var mouse = new THREE.Vector2();
 
 var end;
 var target = new THREE.Vector3();
@@ -89,26 +86,17 @@ function init()
 	container.appendChild (renderer.domElement); 
 	controls = new THREE.OrbitControls (camera, renderer.domElement);
 
-	// first link
 	var boxGeometry = new THREE.BoxGeometry (60, 10,10);
 	boxMaterial = new THREE.MeshLambertMaterial ({color: 0x00ffff, wireframe:false});
-	var armMesh = new THREE.Mesh (boxGeometry, boxMaterial);
-	arm = new THREE.Object3D();
-	arm.add (armMesh);
-	armMesh.translateOnAxis (new THREE.Vector3(1,0,0), 60/2);
+	arm = new THREE.Mesh (boxGeometry, boxMaterial);
 	scene.add (arm);
 
-	// second link
 	boxGeometry = new THREE.BoxGeometry (90, 10,10);
 	boxMaterial2 = new THREE.MeshLambertMaterial ({color: 0xff00ff, wireframe:false});
-	var armMesh2 = new THREE.Mesh (boxGeometry, boxMaterial2);
-	arm2 = new THREE.Object3D();
-	arm2.add (armMesh2);
-	arm2.translateOnAxis (new THREE.Vector3(1,0,0), 60);
-	armMesh2.translateOnAxis (new THREE.Vector3(1,0,0), 90/2);
+	arm2 = new THREE.Mesh (boxGeometry, boxMaterial2);
 	arm.add (arm2);
 
-	// end effector
+	// base
 	var cyl_geom = new THREE.CylinderGeometry (10,10,6,32);
 	var cyl_mat = new THREE.MeshLambertMaterial ({color: 0xff2211});
 	end = new THREE.Mesh (cyl_geom, cyl_mat);
@@ -124,17 +112,7 @@ function init()
 
 	var ambientLight = new THREE.AmbientLight (0x111111);
 	scene.add(ambientLight);
-/*
-	gcontrols = new function() {
-		this.theta1 = 0.0;
-		this.theta2 = 0.0;
-		this.wireshow = false;
-	}
-	var gui = new dat.GUI();
-	gui.add (gcontrols, 'theta1', -1.5, 1.5);
-	gui.add (gcontrols, 'theta2', -1.5, 1.5);
-	gui.add (gcontrols, 'wireshow');
-*/	
+
 	window.addEventListener ('resize', onWindowResize, false);	
 	renderer.domElement.addEventListener ('mousemove', onDocumentMouseMove, false);
 }
@@ -151,7 +129,7 @@ function onDocumentMouseMove( event ) {
 	// tracer: find intersection on xz plane
 	var depth0 = new THREE.Vector3( mouse.x, mouse.y, 0.0 ).unproject( camera );
 	var depth1 = new THREE.Vector3( mouse.x, mouse.y, 1.0 ).unproject( camera );
-	//debugger;
+
 	var t = depth0.y / (depth0.y - depth1.y);
 	var x = depth0.x + t * (depth1.x - depth0.x);
 	var z = depth0.z + t * (depth1.z - depth0.z);
@@ -160,31 +138,24 @@ function onDocumentMouseMove( event ) {
 
 function animate()
 {
-	requestAnimationFrame ( animate );  // timer callback
+	requestAnimationFrame ( animate );  
 	update();
-	render();  // display callback
+	render();  
 }
 
 function update()
 {
-	keyboard.update();
 	controls.update();
-
-	//theta1 = gcontrols.theta1;
-	//theta2 = gcontrols.theta2;
-	//boxMaterial.wireframe = gcontrols.wireshow;
-	//boxMaterial2.wireframe = gcontrols.wireshow;
 
 	var joints = [];
 	for (var i = 0; i < 3; i++) joints[i] = new THREE.Vector3();
 	
 	var dt = clock.getElapsedTime();
-	//var target = new THREE.Vector3 (100+20*Math.cos(3*dt), 0, 100+20*Math.sin(3*dt));
+	
 	var theta = [theta1, theta2]; // for call-by-reference
 	ik_ccd (target, theta);
-	console.log ("THETA1&2: " + theta1 + ", " + theta2);
+//	console.log ("THETA1&2: " + theta1 + ", " + theta2);
 	
-	//end.position.copy (joints[2]);
 }
 
 function onWindowResize()
@@ -196,11 +167,13 @@ function onWindowResize()
 	renderer.setSize (width, height);
 }
 
-
 function render()
 {
 	arm.rotation.y = theta1;
+	arm.position.set (30*Math.cos(theta1),0,-30*Math.sin(theta1));
+	
 	arm2.rotation.y = theta2;
+	arm2.position.set (30+45*Math.cos(theta2), 0, -45*Math.sin(theta2));
 	
 	renderer.render (scene, camera);
 }

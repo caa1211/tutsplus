@@ -86,7 +86,7 @@
 			// core
 
 			var renderer, camera, scene, stats, clock;
-			var rendererWebGL, rendererDeferred;
+			var rendererDeferred;
 			
 			// lights
 
@@ -102,9 +102,6 @@
 			function init() {
 
 				// renderer
-				rendererWebGL = new THREE.WebGLRenderer( {antialias:true} );
-				rendererWebGL.setSize(window.innerWidth, window.innerHeight);
-
 				rendererDefer = new THREE.WebGLDeferredRenderer( { width: WIDTH, height: HEIGHT, scale: SCALE, antialias: true } );
 
 				var container = document.getElementById( 'container' );
@@ -214,7 +211,7 @@
 
 				var object = new THREE.Object3D();
 
-				var mapHeight2 = THREE.ImageUtils.loadTexture( "images/lightmap/rocks.jpg" );
+				var mapHeight2 = THREE.ImageUtils.loadTexture( "images/rocks.jpg" );
 				mapHeight2.repeat.set( 3, 1.5 );
 				mapHeight2.wrapS = mapHeight2.wrapT = THREE.RepeatWrapping;
 				mapHeight2.anisotropy = 4;
@@ -343,7 +340,7 @@
 
 				// update camera
 
-				var delta = clock.getDelta();
+				// var delta = clock.getDelta();
 
 				targetX = mouseX * .001;
 				targetY = mouseY * .001;

@@ -102,6 +102,14 @@ function init()
 		scene.add (teapot);
 	});
 	
+	var jsonLoader = new THREE.JSONLoader();
+	jsonLoader.load ("models/teapot.js", function (geometry) {
+		teapot2 = new THREE.Mesh (geometry, new THREE.MeshLambertMaterial ({color: 0x12ff44}));
+		teapot2.scale.set (12,12,12);
+		teapot2.position.set (60,0,30);
+		scene.add (teapot2);
+	});
+	
 	var ambientLight = new THREE.AmbientLight (0x111111);
 	scene.add(ambientLight);
 

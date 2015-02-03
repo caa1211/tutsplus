@@ -125,8 +125,9 @@ function initAreaLights() {
 function createAreaEmitter( light ) {
 
 	var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-	var material = new THREE.MeshBasicMaterial( { color: light.color.getHex(), vertexColors: THREE.FaceColors } );
-
+	var material = new THREE.MeshBasicMaterial( { color: light.color.getHex() , vertexColors: THREE.FaceColors } );
+	// how important is to add vertexColors ...
+	
 	var backColor = 0x222222;
 
 	geometry.faces[ 5 ].color.setHex( backColor );

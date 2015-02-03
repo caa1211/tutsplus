@@ -33,6 +33,7 @@
 <div id="info">
 webgl tutorial 25: Sketcher <br/>
 Left button to add; Right button to terminate <br/>
+(demo: one open contour only)
 </div>
 <div id="info2">
 Hit 'C' to clear; Hit 'S' to save; Hit 'R' to read <br/>
@@ -42,10 +43,12 @@ Hit 'C' to clear; Hit 'S' to save; Hit 'R' to read <br/>
 <script src="js/KeyboardState.js"></script>
 <script src="lineUtil.js"></script>
 
-<script>
-// q: to use right button?
-// to use file for i/o
+<script> 
+  document.oncontextmenu=function(){return false;} 
+</script>
 
+
+<script>
 var scene, renderer, camera;
 var plane, cyl;
 var mouse = new THREE.Vector2();
@@ -61,14 +64,14 @@ animate();
 
 
 
-// this little function turns off the default "right-button" menu in 
+// this little function below turns off the default "right-button" menu in 
 // canvas window
-document.oncontextmenu = function(e){
+// http://www.dotblogs.com.tw/nethawk/archive/2010/07/13/16520.aspx
+//document.oncontextmenu = function(e){
    
 //        console.log("my function");
-        return false;  
-};
-
+//        return false;  
+//};
 
 function init()
 {
@@ -98,7 +101,7 @@ function init()
 	//readContour();
 	
 	window.addEventListener ('resize', onWindowResize, false);	
-	window.addEventListener( 'mousemove', onDocumentMouseMove, false );
+//	window.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	window.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
 }
@@ -110,7 +113,7 @@ function onDocumentMouseDown (event) {
 	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-	if (event.button === 0) {
+	if (event.button === 0) {  // left button
 		++npoints;
 		var myPoint = new THREE.Vector3(mouse.x*15, mouse.y*15,0);
 		if (nolineyet) { 
@@ -123,7 +126,9 @@ function onDocumentMouseDown (event) {
 
 	} else if (event.button === 2) {  // right BUTTON
 		nolineyet = true;
-		// closeTheLoop();
+
+		// once line is terminated, do not draw further
+		window.removeEventListener( 'mousedown', onDocumentMouseDown);
 	}
 	
 }
@@ -141,14 +146,23 @@ function animate()
 {
 	keyboard.update();
 	
-	if ( keyboard.down("C") )   
+	if ( keyboard.down("C") )  {
 		clearLine(); 
+		window.addEventListener( 'mousedown', onDocumentMouseDown, false );
+	}
 		
-	if ( keyboard.down ("R") )
-		readContour();
-	if ( keyboard.down ("S") )
-		outputContour();
-		
+	if ( keyboard.down ("R") ) { 
+		var ss = localStorage.getItem ("myContour");	
+		readContour(ss);
+		// one line exists
+		window.removeEventListener( 'mousedown', onDocumentMouseDown);
+	}
+	
+	if ( keyboard.down ("S") ) {
+		var string = outputContour();
+		localStorage.setItem ("myContour", string);
+	}
+	
 	requestAnimationFrame ( animate );  
 	render(); 
 }

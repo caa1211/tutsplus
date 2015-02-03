@@ -67,33 +67,25 @@
               'images/redsky_cubemap/redsky_negz.png'
             ];
 
-        // wrap it up into the object that we need
         var cubemap = THREE.ImageUtils.loadTextureCube(urls);
-
-        // set the format, likely RGB
         cubemap.format = THREE.RGBFormat;
 	
-        // following code from https://github.com/mrdoob/three.js/blob/master/examples/webgl_materials_cubemap.html
         var shader = THREE.ShaderLib[ "cube" ];
         shader.uniforms[ "tCube" ].texture = cubemap;
-
         var material = new THREE.ShaderMaterial( {
-
-          fragmentShader: shader.fragmentShader,
-          vertexShader: shader.vertexShader,
-          uniforms: shader.uniforms,
-          depthWrite: false,
-          side: THREE.BackSide
-
+			fragmentShader: shader.fragmentShader,
+			vertexShader: shader.vertexShader,
+			uniforms: shader.uniforms,
+			depthWrite: false,
+			side: THREE.BackSide
         });
+        var skybox = new THREE.Mesh( new THREE.BoxGeometry( 500, 500, 500 ), material );
 
-        var skybox = new THREE.Mesh( new THREE.BoxGeometry( 5000, 5000, 5000 ), material );
-
+		// the center piece
         var reflectionMaterial = new THREE.MeshBasicMaterial({
           color: 0xffffff, //0xcccccc,
           envMap: cubemap
         });
-
         var torus = new THREE.Mesh(
           new THREE.TorusKnotGeometry(60,20,100),
           reflectionMaterial
